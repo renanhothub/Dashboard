@@ -1,0 +1,10 @@
+node_modules/
+dist/
+*.log
+*.tsbuildinfo
+package-lock.json
+
+# SQLite runtime data
+server/data.sqlite3
+server/data.sqlite3-shm
+server/data.sqlite3-wal
