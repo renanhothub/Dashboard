@@ -14,7 +14,12 @@ export default function Home() {
   return (
     <div>
       <header className="pt-safe px-4 pb-2">
-        <p className="pt-5 text-xs font-medium uppercase tracking-[0.2em] text-gold-400">Treino Pro</p>
+        <div className="flex items-center justify-between pt-5">
+          <p className="text-xs font-medium uppercase tracking-[0.2em] text-gold-400">Treino Pro</p>
+          <Link to="/favoritos" className="rounded-full bg-ink-800 px-3 py-1.5 text-xs text-gold-300">
+            ★ Favoritos
+          </Link>
+        </div>
         <h1 className="mt-1 text-2xl font-semibold tracking-tight">Qual músculo hoje?</h1>
         <p className="mt-1 text-sm text-ink-300">
           {muscles.length} grupos · {allExercises.length} exercícios com execução ilustrada

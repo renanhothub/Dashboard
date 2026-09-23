@@ -12,6 +12,7 @@ export interface Workout {
   name: string;
   items: WorkoutItem[];
   createdAt: number;
+  updatedAt?: number;
 }
 export interface SetLog {
   kg: string;
@@ -30,35 +31,59 @@ export interface Session {
   finishedAt?: number;
   entries: SessionEntry[];
 }
-interface State {
+export interface State {
   workouts: Workout[];
   sessions: Session[];
   active: Session | null;
+  favorites: string[];
+  favoritesAt: number;
+  /** Ids apagados (para a exclusão valer também nos outros aparelhos). */
+  deleted: string[];
+  /** Última alteração local. */
+  changedAt: number;
 }
 
 const KEY = "treino-pro:treinos";
-const empty: State = { workouts: [], sessions: [], active: null };
+const empty: State = { workouts: [], sessions: [], active: null, favorites: [], favoritesAt: 0, deleted: [], changedAt: 0 };
 
 function load(): State {
   try {
     const raw = localStorage.getItem(KEY);
-    return raw ? { ...empty, ...JSON.parse(raw) } : empty;
+    const st: State = raw ? { ...empty, ...JSON.parse(raw) } : { ...empty };
+    // Migra favoritos da versão anterior
+    const oldFav = localStorage.getItem("treino-pro:favoritos");
+    if (oldFav && !st.favorites.length) {
+      st.favorites = JSON.parse(oldFav);
+      st.favoritesAt = Date.now();
+      localStorage.removeItem("treino-pro:favoritos");
+    }
+    return st;
   } catch {
-    return empty;
+    return { ...empty };
   }
 }
 
 let state: State = load();
 const listeners = new Set<() => void>();
 
-function set(next: State) {
-  state = next;
+function set(next: State, { local = true } = {}) {
+  state = local ? { ...next, changedAt: Date.now() } : next;
   try {
     localStorage.setItem(KEY, JSON.stringify(state));
   } catch {
     /* armazenamento indisponível: mantém só em memória */
   }
   listeners.forEach((l) => l());
+}
+
+export const getState = () => state;
+/** Substitui o estado (usado pela sincronização com o servidor, sem marcar como alteração local). */
+export const replaceState = (next: State) => set(next, { local: false });
+export function subscribe(l: () => void) {
+  listeners.add(l);
+  return () => {
+    listeners.delete(l);
+  };
 }
 
 export function useTraining() {
@@ -107,11 +132,16 @@ export function createWorkout(name = nextWorkoutName(), firstExId?: string): Wor
 }
 
 export function updateWorkout(id: string, fn: (w: Workout) => Workout) {
-  set({ ...state, workouts: state.workouts.map((w) => (w.id === id ? fn(w) : w)) });
+  set({ ...state, workouts: state.workouts.map((w) => (w.id === id ? { ...fn(w), updatedAt: Date.now() } : w)) });
 }
 
 export function deleteWorkout(id: string) {
-  set({ ...state, workouts: state.workouts.filter((w) => w.id !== id) });
+  set({ ...state, workouts: state.workouts.filter((w) => w.id !== id), deleted: [...state.deleted, id] });
+}
+
+export function toggleFavorite(exId: string) {
+  const favorites = state.favorites.includes(exId) ? state.favorites.filter((x) => x !== exId) : [...state.favorites, exId];
+  set({ ...state, favorites, favoritesAt: Date.now() });
 }
 
 export function addToWorkout(id: string, exId: string) {
@@ -211,7 +241,36 @@ export function cancelSession() {
 }
 
 export function deleteSession(id: string) {
-  set({ ...state, sessions: state.sessions.filter((s) => s.id !== id) });
+  set({ ...state, sessions: state.sessions.filter((s) => s.id !== id), deleted: [...state.deleted, id] });
+}
+
+/** Junta os dados de dois aparelhos: une treinos e sessões, respeitando exclusões e a versão mais recente. */
+export function mergeStates(local: State, remote: Partial<State> | null): State {
+  if (!remote) return local;
+  const deleted = [...new Set([...(local.deleted ?? []), ...(remote.deleted ?? [])])];
+  const gone = new Set(deleted);
+  const byId = <T extends { id: string }>(a: T[], b: T[], newer: (x: T, y: T) => T) => {
+    const m = new Map<string, T>();
+    for (const x of [...a, ...b]) {
+      if (gone.has(x.id)) continue;
+      const cur = m.get(x.id);
+      m.set(x.id, cur ? newer(cur, x) : x);
+    }
+    return [...m.values()];
+  };
+  const workouts = byId(local.workouts, remote.workouts ?? [], (x, y) => ((y.updatedAt ?? y.createdAt) > (x.updatedAt ?? x.createdAt) ? y : x)).sort(
+    (a, b) => a.createdAt - b.createdAt,
+  );
+  const sessions = byId(local.sessions, remote.sessions ?? [], (x) => x).sort((a, b) => a.startedAt - b.startedAt);
+  const remoteFavNewer = (remote.favoritesAt ?? 0) > local.favoritesAt;
+  return {
+    ...local,
+    workouts,
+    sessions,
+    favorites: remoteFavNewer ? remote.favorites ?? [] : local.favorites,
+    favoritesAt: Math.max(local.favoritesAt, remote.favoritesAt ?? 0),
+    deleted: deleted.slice(-500),
+  };
 }
 
 // ---------- Formatação ----------

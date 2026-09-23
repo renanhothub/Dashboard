@@ -8,16 +8,31 @@ App de treino para celular (PWA) com biblioteca de exercícios organizada por **
 - **Meus treinos**: monte Treino A, B, C… com os exercícios escolhidos, número de séries e ordem
 - **Registro de treino**: carga e repetições de cada série, com a carga da última vez como referência e cronômetro de descanso automático
 - **Histórico**: sessões realizadas, volume total e evolução de carga por exercício
-- Busca, favoritos e funcionamento offline (instalável na tela inicial). Os dados ficam salvos no próprio aparelho
+- **Conta na nuvem**: treinos, cargas, histórico e favoritos sincronizados entre aparelhos
+- **Convide seus amigos**: competições de presença com check-in por foto (1 ponto por dia), ranking, feed de fotos com 💪 e convite por link/código
+- Busca, favoritos e funcionamento offline (instalável na tela inicial)
 
-## Rodar
+## Rodar localmente
 
 ```bash
 cd treino-app
-npm install
-npm run dev      # abre em http://localhost:5174 (use o IP da rede para abrir no celular)
-npm run build    # gera a versão de produção em dist/
+npm install && (cd server && npm install)
+npm run server   # API em http://localhost:3002 (terminal 1)
+npm run dev      # app em http://localhost:5174 (terminal 2)
 ```
+
+Testes do servidor: `cd server && npm test`.
+
+## Publicar (para usar no celular com os amigos)
+
+O app e o servidor rodam juntos em um único serviço (`Dockerfile`). O servidor guarda o banco (SQLite)
+e as fotos na pasta definida em `DATA_DIR`, que **precisa ser um disco persistente**.
+
+**Render (recomendado):** em render.com → *New → Blueprint* → escolha este repositório. O arquivo
+`render.yaml` já cria o serviço com um disco de 1 GB (plano Starter, pago — o plano grátis não tem disco
+e apagaria os dados). Depois é só abrir o endereço gerado no celular e "Adicionar à tela inicial".
+
+Qualquer serviço que rode Docker com volume persistente também funciona (Railway, Fly.io, VPS).
 
 Para instalar no celular: abra o endereço no navegador e use "Adicionar à tela inicial".
 

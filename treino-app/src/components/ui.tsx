@@ -94,11 +94,14 @@ export function BottomNav() {
         <NavLink to="/treinos" className={item}>
           <span className="text-lg">▤</span>Treinos
         </NavLink>
+        <NavLink to="/amigos" className={item}>
+          <span className="text-lg">🏆</span>Amigos
+        </NavLink>
         <NavLink to="/historico" className={item}>
           <span className="text-lg">↺</span>Histórico
         </NavLink>
-        <NavLink to="/favoritos" className={item}>
-          <span className="text-lg">★</span>Favoritos
+        <NavLink to="/conta" className={item}>
+          <span className="text-lg">◉</span>Conta
         </NavLink>
       </div>
     </nav>

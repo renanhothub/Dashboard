@@ -1,33 +1,7 @@
-import { useCallback, useEffect, useState } from "react";
+import { toggleFavorite, useTraining } from "./training";
 
-const KEY = "treino-pro:favoritos";
-
-function read(): string[] {
-  try {
-    return JSON.parse(localStorage.getItem(KEY) ?? "[]");
-  } catch {
-    return [];
-  }
-}
-
-/** Favoritos salvos no próprio aparelho. */
+/** Favoritos (sincronizados com a conta junto com os treinos). */
 export function useFavorites() {
-  const [ids, setIds] = useState<string[]>(read);
-  useEffect(() => {
-    const onStorage = () => setIds(read());
-    window.addEventListener("storage", onStorage);
-    return () => window.removeEventListener("storage", onStorage);
-  }, []);
-  const toggle = useCallback((id: string) => {
-    setIds((cur) => {
-      const next = cur.includes(id) ? cur.filter((x) => x !== id) : [...cur, id];
-      try {
-        localStorage.setItem(KEY, JSON.stringify(next));
-      } catch {
-        /* armazenamento indisponível: mantém só em memória */
-      }
-      return next;
-    });
-  }, []);
-  return { ids, has: (id: string) => ids.includes(id), toggle };
+  const { favorites } = useTraining();
+  return { ids: favorites, has: (id: string) => favorites.includes(id), toggle: toggleFavorite };
 }

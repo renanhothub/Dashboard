@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useSearchParams } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { findExercise } from "../data";
 import { Header } from "../components/ui";
 import { deleteSession, doneSets, fmtDate, fmtDuration, fmtKg, sessionVolume, useTraining } from "../training";
@@ -21,6 +21,9 @@ export default function History() {
           <div className="mb-4 rounded-3xl bg-emerald-500/15 p-4 text-sm text-emerald-200 ring-1 ring-emerald-400/30">
             <p className="text-base font-semibold">Treino concluído! 💪</p>
             <p>Tudo registrado. Na próxima vez, as cargas de hoje aparecem como referência.</p>
+            <Link to="/amigos" className="mt-3 inline-block rounded-full bg-emerald-400 px-4 py-2 text-sm font-semibold text-ink-950">
+              📸 Fazer check-in com foto
+            </Link>
           </div>
         )}
         <div className="grid grid-cols-3 gap-2 text-center">

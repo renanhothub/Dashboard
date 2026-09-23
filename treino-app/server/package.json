@@ -1,0 +1,17 @@
+{
+  "name": "treino-pro-server",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22.5.0"
+  },
+  "scripts": {
+    "dev": "node --watch src/index.js",
+    "start": "node src/index.js",
+    "test": "node --test test/*.test.js"
+  },
+  "dependencies": {
+    "express": "^4.21.0"
+  }
+}

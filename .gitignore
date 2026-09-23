@@ -8,3 +8,4 @@ package-lock.json
 server/data.sqlite3
 server/data.sqlite3-shm
 server/data.sqlite3-wal
+server/data/

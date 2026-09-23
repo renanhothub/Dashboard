@@ -11,6 +11,11 @@ import History from "./pages/History";
 import SessionPage from "./pages/SessionPage";
 import WorkoutEdit from "./pages/WorkoutEdit";
 import Workouts from "./pages/Workouts";
+import AccountPage from "./pages/AccountPage";
+import Friends from "./pages/Friends";
+import GroupPage from "./pages/GroupPage";
+import InvitePage from "./pages/InvitePage";
+import "./account";
 
 export default function App() {
   const { pathname } = useLocation();
@@ -34,6 +39,10 @@ export default function App() {
         <Route path="/treinos/:id" element={<WorkoutEdit />} />
         <Route path="/sessao" element={<SessionPage />} />
         <Route path="/historico" element={<History />} />
+        <Route path="/conta" element={<AccountPage />} />
+        <Route path="/amigos" element={<Friends />} />
+        <Route path="/amigos/:id" element={<GroupPage />} />
+        <Route path="/convite/:code" element={<InvitePage />} />
         <Route path="*" element={<Home />} />
       </Routes>
       <BottomNav />
