@@ -32,6 +32,10 @@ e as fotos na pasta definida em `DATA_DIR`, que **precisa ser um disco persisten
 `render.yaml` já cria o serviço com um disco de 1 GB (plano Starter, pago — o plano grátis não tem disco
 e apagaria os dados). Depois é só abrir o endereço gerado no celular e "Adicionar à tela inicial".
 
+**Render grátis (só para testar):** *New → Web Service* → repositório `Dashboard`, branch do app,
+*Root Directory* `treino-app`, linguagem *Docker*, instância *Free*. Atenção: no plano grátis o servidor
+dorme após 15 min sem uso e **apaga contas, treinos e fotos** ao dormir ou ser atualizado.
+
 Qualquer serviço que rode Docker com volume persistente também funciona (Railway, Fly.io, VPS).
 
 Para instalar no celular: abra o endereço no navegador e use "Adicionar à tela inicial".
