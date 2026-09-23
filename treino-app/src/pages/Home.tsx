@@ -15,7 +15,7 @@ export default function Home() {
     <div>
       <header className="pt-safe px-4 pb-2">
         <div className="flex items-center justify-between pt-5">
-          <p className="text-xs font-medium uppercase tracking-[0.2em] text-gold-400">Treino Pro</p>
+          <p className="text-xs font-medium uppercase tracking-[0.2em] text-gold-400">Hot Training</p>
           <Link to="/favoritos" className="rounded-full bg-ink-800 px-3 py-1.5 text-xs text-gold-300">
             ★ Favoritos
           </Link>

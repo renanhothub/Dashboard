@@ -1,4 +1,4 @@
-/** Cliente da API do servidor Treino Pro. */
+/** Cliente da API do servidor Hot Training. */
 
 /** Endereço do servidor. Vazio = mesmo domínio do app (padrão em produção e no dev via proxy). */
 export const API_BASE = (import.meta.env.VITE_API_URL ?? "").replace(/\/$/, "");

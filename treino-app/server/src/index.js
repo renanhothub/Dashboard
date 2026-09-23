@@ -264,5 +264,5 @@ if (fs.existsSync(dist)) {
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const port = Number(process.env.PORT ?? 3002);
-  app.listen(port, () => console.log(`Treino Pro API em http://localhost:${port}`));
+  app.listen(port, () => console.log(`Hot Training API em http://localhost:${port}`));
 }

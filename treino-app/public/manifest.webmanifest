@@ -1,6 +1,6 @@
 {
-  "name": "Treino Pro",
-  "short_name": "Treino",
+  "name": "Hot Training",
+  "short_name": "Hot Training",
   "description": "Biblioteca de exercícios por músculo e porção muscular, com ilustrações animadas.",
   "start_url": "./",
   "scope": "./",
