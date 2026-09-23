@@ -1,0 +1,5 @@
+**/node_modules
+treino-app/server/data
+treino-app/dist
+client
+server
