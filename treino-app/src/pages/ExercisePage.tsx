@@ -3,6 +3,7 @@ import { Link, Navigate, useParams } from "react-router-dom";
 import { findExercise } from "../data";
 import { Header, Illustration, LevelBadge } from "../components/ui";
 import { useFavorites } from "../favorites";
+import { imageFor } from "../data/images";
 
 export default function ExercisePage() {
   const { id } = useParams();
@@ -18,13 +19,13 @@ export default function ExercisePage() {
       <Header title={ex.name} subtitle={`${muscle.name} › ${portion.name}`} back />
       <div className="px-4 pt-4">
         <Illustration ex={ex} mode={mode} labels />
-        <div className="mt-3 grid grid-cols-2 gap-1 rounded-full bg-ink-800 p-1 text-sm">
+        {!imageFor(ex.id) && <div className="mt-3 grid grid-cols-2 gap-1 rounded-full bg-ink-800 p-1 text-sm">
           {(["pair", "anim"] as const).map((m) => (
             <button key={m} onClick={() => setMode(m)} className={`rounded-full py-2 font-medium ${mode === m ? "bg-ink-950 text-white" : "text-ink-300"}`}>
               {m === "pair" ? "Início e fim" : "Animação"}
             </button>
           ))}
-        </div>
+        </div>}
 
         <div className="mt-5 flex flex-wrap items-center gap-2">
           <LevelBadge level={ex.level} />

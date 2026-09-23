@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import type { Exercise, Level } from "../data/types";
+import { imageFor } from "../data/images";
 import ExerciseAnimation from "../illustration/ExerciseAnimation";
 
 export function Header({ title, subtitle, back }: { title: string; subtitle?: string; back?: boolean }) {
@@ -34,6 +35,13 @@ export function LevelBadge({ level }: { level: Level }) {
 
 /** Cartão branco com a ilustração em dois quadros (início → fim). */
 export function Illustration({ ex, mode = "pair", labels }: { ex: Exercise; mode?: "pair" | "anim"; labels?: boolean }) {
+  const img = imageFor(ex.id);
+  if (img)
+    return (
+      <div className="overflow-hidden rounded-2xl bg-white">
+        <img src={img} alt={ex.name} loading="lazy" className="block aspect-[12/5] w-full object-contain" />
+      </div>
+    );
   return (
     <div className="overflow-hidden rounded-2xl bg-white">
       <ExerciseAnimation anim={ex.anim} mode={mode} className="block w-full" title={ex.name} />

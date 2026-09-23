@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { allExercises, muscles } from "../data";
-import ExerciseAnimation from "../illustration/ExerciseAnimation";
+import { Illustration } from "../components/ui";
 
 export default function Home() {
   const [q, setQ] = useState("");
@@ -32,8 +32,8 @@ export default function Home() {
           {results.map(({ muscle, portion, exercise }) => (
             <li key={exercise.id}>
               <Link to={`/exercicio/${exercise.id}`} className="flex items-center gap-3 rounded-2xl bg-ink-900 p-2 ring-1 ring-white/5">
-                <div className="w-28 shrink-0 overflow-hidden rounded-xl bg-white">
-                  <ExerciseAnimation anim={exercise.anim} className="block w-full" />
+                <div className="w-32 shrink-0">
+                  <Illustration ex={exercise} />
                 </div>
                 <div className="min-w-0">
                   <p className="truncate text-sm font-medium">{exercise.name}</p>
@@ -52,9 +52,7 @@ export default function Home() {
             const total = m.portions.reduce((n, p) => n + p.exercises.length, 0);
             return (
               <Link key={m.id} to={`/musculo/${m.id}`} className="rounded-3xl bg-ink-900 p-2 ring-1 ring-white/5 active:scale-[0.98]">
-                <div className="overflow-hidden rounded-2xl bg-white">
-                  <ExerciseAnimation anim={first.anim} mode="anim" className="block w-full" />
-                </div>
+                <Illustration ex={first} mode="anim" />
                 <div className="px-1.5 pb-1 pt-2">
                   <h2 className="font-semibold">{m.name}</h2>
                   <p className="text-[11px] text-ink-300">
