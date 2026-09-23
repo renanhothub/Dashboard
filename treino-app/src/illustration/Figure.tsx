@@ -2,159 +2,267 @@ import type { ReactNode } from "react";
 import { add, dir, FLOOR, front, lerpV, mul, type Frame, type Limb } from "./kinematics";
 import type { Gear, Hl, Prop, Vec } from "./types";
 
+/**
+ * Estilo "atlas anatômico": boneco claro com volume (luz e sombra), contorno fino,
+ * músculo-alvo em vermelho, pesos pretos e aparelhos claros.
+ */
 export const C = {
-  near: "#dfe3ea",
-  torso: "#cfd4dd",
-  far: "#7d8594",
-  hl: "#ff6b4a",
-  metal: "#a7afbd",
-  plate: "#2b3039",
-  plateRim: "#e8c35a",
-  pad: "#394150",
-  padEdge: "#4a5364",
-  frame: "#586174",
-  cable: "#8e96a5",
-  floor: "#2a2f39",
+  skin: "#e3e5e8",
+  skinFar: "#c5c9cf",
+  light: "#fafbfc",
+  shade: "#b3b8c0",
+  outline: "#6b717a",
+  line: "#a9aeb6",
+  mus: "url(#tp-mus)",
+  musEdge: "#9e2c19",
+  metal: "#8c929a",
+  plate: "#1c1e22",
+  plateRim: "#44474e",
+  pad: "#2a2c31",
+  padEdge: "#141518",
+  frame: "#eef0f2",
+  frameEdge: "#9ea4ac",
+  cable: "#4a4f57",
+  accent: "#d4a72c",
 };
 
-const W = { torso: 15, ua: 8.5, fa: 7, thigh: 11.5, shin: 8.5, foot: 5, hand: 5.5 };
-/** Deslocamento dos membros do lado distante (dá sensação de profundidade na vista lateral). */
-const DEPTH: Vec = [-3, -2];
+/** Gradientes compartilhados — renderize uma vez na página. */
+export function SvgDefs() {
+  return (
+    <svg width="0" height="0" style={{ position: "absolute" }} aria-hidden>
+      <defs>
+        <radialGradient id="tp-mus" cx="45%" cy="40%" r="65%">
+          <stop offset="0%" stopColor="#ff8a6a" />
+          <stop offset="55%" stopColor="#e2482c" />
+          <stop offset="100%" stopColor="#b3321c" />
+        </radialGradient>
+        <radialGradient id="tp-plate" cx="40%" cy="35%" r="70%">
+          <stop offset="0%" stopColor="#3a3d44" />
+          <stop offset="100%" stopColor="#141518" />
+        </radialGradient>
+      </defs>
+    </svg>
+  );
+}
 
-const P = (v: Vec) => `${v[0].toFixed(2)},${v[1].toFixed(2)}`;
+const DEPTH: Vec = [-3, -2];
+const LIGHT: Vec = [-0.45, -0.89];
+
+const P = (v: Vec) => `${v[0].toFixed(2)} ${v[1].toFixed(2)}`;
+const unit = (a: Vec, b: Vec): Vec => {
+  const d: Vec = [b[0] - a[0], b[1] - a[1]];
+  const l = Math.hypot(d[0], d[1]) || 1;
+  return [d[0] / l, d[1] / l];
+};
 
 function Seg({ a, b, w, c, o }: { a: Vec; b: Vec; w: number; c: string; o?: number }) {
   return <line x1={a[0]} y1={a[1]} x2={b[0]} y2={b[1]} stroke={c} strokeWidth={w} strokeLinecap="round" opacity={o} />;
+}
+
+/** Peça de aparelho (tubo claro com contorno). */
+function FrameSeg({ a, b, w }: { a: Vec; b: Vec; w: number }) {
+  return (
+    <g>
+      <Seg a={a} b={b} w={w + 1.6} c={C.frameEdge} />
+      <Seg a={a} b={b} w={w} c={C.frame} />
+    </g>
+  );
 }
 
 function shift(l: Limb, o: Vec): Limb {
   return { ...l, root: add(l.root, o), mid: add(l.mid, o), end: add(l.end, o), tip: add(l.tip, o), grip: add(l.grip, o) };
 }
 
-/** Faixa deslocada para um dos lados de um segmento (ex.: bíceps na frente do braço). */
-function stripe(a: Vec, b: Vec, off: number, w: number, t0 = 0.15, t1 = 0.85) {
-  const d: Vec = [b[0] - a[0], b[1] - a[1]];
-  const len = Math.hypot(d[0], d[1]) || 1;
-  const u: Vec = [d[0] / len, d[1] / len];
-  const f = front(u);
-  const p = add(lerpV(a, b, t0), mul(f, off));
-  const q = add(lerpV(a, b, t1), mul(f, off));
-  return <Seg a={p} b={q} w={w} c={C.hl} />;
+// ---------- Formas do corpo ----------
+
+const circle = (c: Vec, r: number) =>
+  `M ${c[0] - r} ${c[1]} a ${r} ${r} 0 1 0 ${2 * r} 0 a ${r} ${r} 0 1 0 ${-2 * r} 0 Z`;
+
+/** Segmento afunilado (largura w1 → w2) com pontas arredondadas, como subcaminhos. */
+function taper(a: Vec, b: Vec, w1: number, w2: number, off = 0): string[] {
+  const u = unit(a, b);
+  const n: Vec = [-u[1], u[0]];
+  const a2 = add(a, mul(n, off));
+  const b2 = add(b, mul(n, off));
+  const quad = [add(a2, mul(n, w1 / 2)), add(b2, mul(n, w2 / 2)), add(b2, mul(n, -w2 / 2)), add(a2, mul(n, -w1 / 2))];
+  return [`M ${quad.map(P).join(" L ")} Z`, circle(a2, w1 / 2), circle(b2, w2 / 2)];
 }
 
-function ArmShape({ l, c, far }: { l: Limb; c: string; far?: boolean }) {
+/** Ventre muscular em forma de lente ao longo de um segmento. */
+function belly(a: Vec, b: Vec, w: number, off = 0): string {
+  const u = unit(a, b);
+  const n: Vec = [-u[1], u[0]];
+  const pts: Vec[] = [];
+  const N = 14;
+  for (let i = 0; i <= N; i++) {
+    const t = i / N;
+    const h = (w / 2) * Math.pow(Math.sin(Math.PI * t), 0.75);
+    pts.push(add(add(lerpV(a, b, t), mul(n, off + h)), [0, 0]));
+  }
+  for (let i = N; i >= 0; i--) {
+    const t = i / N;
+    const h = (w / 2) * Math.pow(Math.sin(Math.PI * t), 0.75);
+    pts.push(add(lerpV(a, b, t), mul(n, off - h)));
+  }
+  return `M ${pts.map(P).join(" L ")} Z`;
+}
+
+/** Desenha um grupo de subcaminhos com contorno único + preenchimento. */
+function Part({ d, fill }: { d: string[]; fill: string }) {
   return (
     <g>
-      <Seg a={l.root} b={l.mid} w={W.ua * (far ? 0.92 : 1)} c={c} />
-      <Seg a={l.mid} b={l.end} w={W.fa * (far ? 0.92 : 1)} c={c} />
-      <Seg a={l.end} b={l.tip} w={W.hand} c={c} />
+      {d.map((p, i) => (
+        <path key={"o" + i} d={p} fill={C.outline} stroke={C.outline} strokeWidth={1.7} strokeLinejoin="round" />
+      ))}
+      {d.map((p, i) => (
+        <path key={"f" + i} d={p} fill={fill} />
+      ))}
     </g>
   );
 }
 
-function LegShape({ l, c, far, front: isFront }: { l: Limb; c: string; far?: boolean; front?: boolean }) {
+/** Membro com volume: base + faixa de luz + faixa de sombra. */
+function Limb3D({ a, b, w1, w2, far }: { a: Vec; b: Vec; w1: number; w2: number; far?: boolean }) {
+  const u = unit(a, b);
+  const n: Vec = [-u[1], u[0]];
+  const s = n[0] * LIGHT[0] + n[1] * LIGHT[1] > 0 ? 1 : -1;
+  const wm = (w1 + w2) / 2;
+  const hi = taper(lerpV(a, b, 0.06), lerpV(a, b, 0.94), w1 * 0.36, w2 * 0.36, s * wm * 0.2)[0];
+  const sh = taper(lerpV(a, b, 0.04), lerpV(a, b, 0.96), w1 * 0.3, w2 * 0.3, -s * wm * 0.3)[0];
   return (
     <g>
-      <Seg a={l.root} b={l.mid} w={W.thigh * (far ? 0.92 : 1)} c={c} />
-      <Seg a={l.mid} b={l.end} w={W.shin * (far ? 0.92 : 1)} c={c} />
-      <Seg a={l.end} b={l.tip} w={isFront ? 6 : W.foot} c={c} />
+      <Part d={taper(a, b, w1, w2)} fill={far ? C.skinFar : C.skin} />
+      <path d={sh} fill={C.shade} opacity={far ? 0.35 : 0.5} />
+      <path d={hi} fill={C.light} opacity={far ? 0.3 : 0.75} />
+    </g>
+  );
+}
+
+const Mus = ({ d }: { d: string }) => <path d={d} fill={C.mus} stroke={C.musEdge} strokeWidth={0.6} />;
+const MusDot = ({ c, r }: { c: Vec; r: number }) => <circle cx={c[0]} cy={c[1]} r={r} fill={C.mus} stroke={C.musEdge} strokeWidth={0.6} />;
+
+const ARM = { ua: [10, 7.2], fa: [7.6, 5], hand: [5.2, 4.4] };
+const LEG = { th: [14.5, 9.5], sh: [9.5, 5.8], ft: [5.6, 4] };
+
+function ArmShape({ l, far }: { l: Limb; far?: boolean }) {
+  const k = far ? 0.93 : 1;
+  return (
+    <g>
+      <Limb3D a={l.mid} b={l.end} w1={ARM.fa[0] * k} w2={ARM.fa[1] * k} far={far} />
+      <Limb3D a={l.end} b={l.tip} w1={ARM.hand[0] * k} w2={ARM.hand[1] * k} far={far} />
+      <Limb3D a={l.root} b={l.mid} w1={ARM.ua[0] * k} w2={ARM.ua[1] * k} far={far} />
+    </g>
+  );
+}
+
+function LegShape({ l, far, isFront }: { l: Limb; far?: boolean; isFront?: boolean }) {
+  const k = far ? 0.94 : 1;
+  return (
+    <g>
+      <Limb3D a={l.end} b={l.tip} w1={(isFront ? 6.5 : LEG.ft[0]) * k} w2={(isFront ? 5 : LEG.ft[1]) * k} far={far} />
+      <Limb3D a={l.mid} b={l.end} w1={LEG.sh[0] * k} w2={LEG.sh[1] * k} far={far} />
+      <Limb3D a={l.root} b={l.mid} w1={LEG.th[0] * k} w2={LEG.th[1] * k} far={far} />
     </g>
   );
 }
 
 // ---------- Destaques musculares ----------
 
+/** Ventre deslocado para um lado do segmento (off>0 = lado "frontal" do segmento). */
+function sideBelly(a: Vec, b: Vec, off: number, w: number, t0 = 0.12, t1 = 0.88) {
+  const u = unit(a, b);
+  const f = front(u);
+  return belly(add(lerpV(a, b, t0), mul(f, off)), add(lerpV(a, b, t1), mul(f, off)), w);
+}
+
 function armHl(l: Limb, hl: Set<Hl>, isFront: boolean) {
   const out: ReactNode[] = [];
-  if (hl.has("biceps")) out.push(isFront ? <Seg key="b" a={l.root} b={l.mid} w={5} c={C.hl} /> : <g key="b">{stripe(l.root, l.mid, 2.2, 4.5)}</g>);
-  if (hl.has("triceps")) out.push(isFront ? <Seg key="t" a={l.root} b={l.mid} w={5} c={C.hl} /> : <g key="t">{stripe(l.root, l.mid, -2.2, 4.5)}</g>);
-  if (hl.has("forearm")) out.push(<Seg key="f" a={lerpV(l.mid, l.end, 0.12)} b={lerpV(l.mid, l.end, 0.8)} w={4.5} c={C.hl} />);
+  if (hl.has("biceps")) out.push(<Mus key="b" d={isFront ? belly(lerpV(l.root, l.mid, 0.12), lerpV(l.root, l.mid, 0.9), 7.5) : sideBelly(l.root, l.mid, 1.6, 6.2)} />);
+  if (hl.has("triceps")) out.push(<Mus key="t" d={isFront ? belly(lerpV(l.root, l.mid, 0.1), lerpV(l.root, l.mid, 0.88), 7.5) : sideBelly(l.root, l.mid, -1.8, 6.2)} />);
+  if (hl.has("forearm")) out.push(<Mus key="f" d={belly(lerpV(l.mid, l.end, 0.05), lerpV(l.mid, l.end, 0.75), 6)} />);
   return out;
 }
 
 function legHl(l: Limb, hl: Set<Hl>, isFront: boolean) {
   const out: ReactNode[] = [];
-  if (hl.has("quads")) out.push(isFront ? <Seg key="q" a={lerpV(l.root, l.mid, 0.15)} b={lerpV(l.root, l.mid, 0.85)} w={7} c={C.hl} /> : <g key="q">{stripe(l.root, l.mid, 2.8, 5.5)}</g>);
-  if (hl.has("hams")) out.push(isFront ? <Seg key="h" a={lerpV(l.root, l.mid, 0.15)} b={lerpV(l.root, l.mid, 0.85)} w={7} c={C.hl} /> : <g key="h">{stripe(l.root, l.mid, -2.8, 5.5)}</g>);
-  if (hl.has("adductors")) out.push(<g key="a">{stripe(l.root, l.mid, isFront ? 0 : 0, 5, 0.1, 0.7)}</g>);
-  if (hl.has("calves")) out.push(isFront ? <Seg key="c" a={lerpV(l.mid, l.end, 0.15)} b={lerpV(l.mid, l.end, 0.6)} w={6} c={C.hl} /> : <g key="c">{stripe(l.mid, l.end, -2.2, 5, 0.1, 0.6)}</g>);
+  const thigh = (off: number, w: number) => (isFront ? belly(lerpV(l.root, l.mid, 0.08), lerpV(l.root, l.mid, 0.9), 11) : sideBelly(l.root, l.mid, off, w));
+  if (hl.has("quads")) out.push(<Mus key="q" d={thigh(2.6, 8.5)} />);
+  if (hl.has("hams")) out.push(<Mus key="h" d={thigh(-2.6, 8.5)} />);
+  if (hl.has("adductors")) out.push(<Mus key="a" d={isFront ? sideBelly(l.root, l.mid, -3, 5, 0.05, 0.7) : sideBelly(l.root, l.mid, 0, 6, 0.05, 0.7)} />);
+  if (hl.has("calves")) out.push(<Mus key="c" d={isFront ? belly(lerpV(l.mid, l.end, 0.05), lerpV(l.mid, l.end, 0.6), 7.5) : sideBelly(l.mid, l.end, -1.6, 7, 0.05, 0.6)} />);
   return out;
 }
 
 function torsoHlSide(f: Frame, hl: Set<Hl>) {
   const out: ReactNode[] = [];
   const at = (t: number, off: number): Vec => add(lerpV(f.pelvis, f.neck, t), mul(f.n, off));
-  const band = (k: string, t0: number, t1: number, off: number, w = 6) =>
-    out.push(<Seg key={k} a={at(t0, off)} b={at(t1, off)} w={w} c={C.hl} />);
-  if (hl.has("chestU")) band("cu", 0.8, 0.95, 4.8);
-  if (hl.has("chestM")) band("cm", 0.64, 0.82, 5);
-  if (hl.has("chestL")) band("cl", 0.52, 0.68, 4.8);
-  if (hl.has("abs") || hl.has("core")) band("ab", 0.2, 0.52, 4.5);
-  if (hl.has("absL")) band("al", 0.08, 0.3, 4.5);
-  if (hl.has("obliques") || hl.has("core")) band("ob", 0.18, 0.5, 0, 7);
-  if (hl.has("lats")) band("la", 0.42, 0.82, -3, 8);
-  if (hl.has("midBack")) band("mb", 0.62, 0.9, -4.8);
-  if (hl.has("traps")) band("tr", 0.9, 1.08, -3.8, 6);
-  if (hl.has("lowBack")) band("lb", 0.06, 0.38, -4.8);
+  const band = (k: string, t0: number, t1: number, off: number, w = 7) => out.push(<Mus key={k} d={belly(at(t0, off), at(t1, off), w)} />);
+  if (hl.has("chestU")) band("cu", 0.74, 0.98, 5.5, 7);
+  if (hl.has("chestM")) band("cm", 0.6, 0.86, 6, 8);
+  if (hl.has("chestL")) band("cl", 0.48, 0.72, 5.5, 7);
+  if (hl.has("abs") || hl.has("core")) band("ab", 0.18, 0.56, 5.5, 6);
+  if (hl.has("absL")) band("al", 0.04, 0.34, 5.5, 6);
+  if (hl.has("obliques") || hl.has("core")) band("ob", 0.14, 0.52, 1, 9);
+  if (hl.has("lats")) band("la", 0.38, 0.86, -3.5, 10);
+  if (hl.has("midBack")) band("mb", 0.58, 0.94, -6, 7);
+  if (hl.has("traps")) band("tr", 0.86, 1.12, -4.8, 7);
+  if (hl.has("lowBack")) band("lb", 0.02, 0.4, -6, 6.5);
+  if (hl.has("glutes")) out.push(<MusDot key="gl" c={add(add(f.pelvis, mul(f.n, -4.5)), mul(f.d, -1))} r={8} />);
+  if (hl.has("gluteMed")) out.push(<MusDot key="gm" c={add(add(f.pelvis, mul(f.n, -2.5)), mul(f.d, 6))} r={5.5} />);
+  return out;
+}
+
+function deltHlSide(f: Frame, hl: Set<Hl>) {
+  const out: ReactNode[] = [];
   const sh = f.arm.root;
-  if (hl.has("deltF")) out.push(<circle key="df" cx={sh[0] + f.n[0] * 2.5} cy={sh[1] + f.n[1] * 2.5} r={5.2} fill={C.hl} />);
-  if (hl.has("deltS")) out.push(<circle key="ds" cx={sh[0]} cy={sh[1]} r={5.5} fill={C.hl} />);
-  if (hl.has("deltR")) out.push(<circle key="dr" cx={sh[0] - f.n[0] * 2.5} cy={sh[1] - f.n[1] * 2.5} r={5.2} fill={C.hl} />);
-  if (hl.has("glutes")) {
-    const g = add(add(f.pelvis, mul(f.n, -4)), mul(f.d, -1));
-    out.push(<circle key="gl" cx={g[0]} cy={g[1]} r={7} fill={C.hl} />);
-  }
-  if (hl.has("gluteMed")) {
-    const g = add(add(f.pelvis, mul(f.n, -2.5)), mul(f.d, 5));
-    out.push(<circle key="gm" cx={g[0]} cy={g[1]} r={5} fill={C.hl} />);
-  }
+  if (hl.has("deltF")) out.push(<MusDot key="df" c={add(sh, mul(f.n, 2.6))} r={5.4} />);
+  if (hl.has("deltS")) out.push(<MusDot key="ds" c={sh} r={5.8} />);
+  if (hl.has("deltR")) out.push(<MusDot key="dr" c={add(sh, mul(f.n, -2.6))} r={5.4} />);
   return out;
 }
 
 function torsoHlFront(f: Frame, hl: Set<Hl>) {
   const out: ReactNode[] = [];
-  // Largura do tronco varia do quadril (10) ao ombro (15)
-  const at = (t: number, s: number): Vec => add(lerpV(f.pelvis, f.neck, t), mul(f.n, s * (10 + 5 * t)));
-  const across = (k: string, t: number, w = 5) => out.push(<Seg key={k} a={at(t, -0.62)} b={at(t, 0.62)} w={w} c={C.hl} />);
-  const vert = (k: string, t0: number, t1: number, s: number, w = 5) => out.push(<Seg key={k} a={at(t0, s)} b={at(t1, s)} w={w} c={C.hl} />);
-  if (hl.has("chestU")) across("cu", 0.86, 4.5);
-  if (hl.has("chestM")) across("cm", 0.74);
-  if (hl.has("chestL")) across("cl", 0.62, 4.5);
-  if (hl.has("abs") || hl.has("core")) vert("ab", 0.22, 0.52, 0, 7);
-  if (hl.has("absL")) vert("al", 0.06, 0.28, 0, 7);
+  const at = (t: number, s: number): Vec => add(lerpV(f.pelvis, f.neck, t), mul(f.n, s * (11 + 6 * t)));
+  const pair = (k: string, t: number, w: number) => {
+    out.push(<Mus key={k + 1} d={belly(at(t, 0.06), at(t + 0.02, 0.72), w)} />);
+    out.push(<Mus key={k + 2} d={belly(at(t, -0.06), at(t + 0.02, -0.72), w)} />);
+  };
+  const vert = (k: string, t0: number, t1: number, s: number, w: number) => out.push(<Mus key={k} d={belly(at(t0, s), at(t1, s), w)} />);
+  if (hl.has("chestU")) pair("cu", 0.86, 5.5);
+  if (hl.has("chestM")) pair("cm", 0.75, 7);
+  if (hl.has("chestL")) pair("cl", 0.64, 5.5);
+  if (hl.has("abs") || hl.has("core")) vert("ab", 0.2, 0.56, 0, 9);
+  if (hl.has("absL")) vert("al", 0.04, 0.3, 0, 9);
   if (hl.has("obliques") || hl.has("core")) {
-    vert("o1", 0.15, 0.5, 0.7, 4.5);
-    vert("o2", 0.15, 0.5, -0.7, 4.5);
+    vert("o1", 0.12, 0.52, 0.72, 5.5);
+    vert("o2", 0.12, 0.52, -0.72, 5.5);
   }
   if (hl.has("lats")) {
-    vert("l1", 0.45, 0.85, 0.78, 5);
-    vert("l2", 0.45, 0.85, -0.78, 5);
+    vert("l1", 0.42, 0.86, 0.8, 6);
+    vert("l2", 0.42, 0.86, -0.8, 6);
   }
-  if (hl.has("midBack")) vert("mb", 0.6, 0.9, 0, 8);
-  if (hl.has("lowBack")) vert("lb", 0.05, 0.35, 0, 7);
+  if (hl.has("midBack")) vert("mb", 0.58, 0.92, 0, 10);
+  if (hl.has("lowBack")) vert("lb", 0.03, 0.38, 0, 8);
   if (hl.has("traps")) {
-    out.push(<Seg key="t1" a={add(f.neck, mul(f.d, 3))} b={lerpV(f.neck, f.arm.root, 0.8)} w={5} c={C.hl} />);
-    out.push(<Seg key="t2" a={add(f.neck, mul(f.d, 3))} b={lerpV(f.neck, f.arm2.root, 0.8)} w={5} c={C.hl} />);
+    const top = add(f.neck, mul(f.d, 3));
+    out.push(<Mus key="t1" d={belly(top, lerpV(f.neck, f.arm.root, 0.85), 6)} />);
+    out.push(<Mus key="t2" d={belly(top, lerpV(f.neck, f.arm2.root, 0.85), 6)} />);
   }
-  if (hl.has("glutes")) {
-    for (const h of [f.hipN, f.hipF]) out.push(<circle key={"g" + h[0]} cx={h[0]} cy={h[1] + 1} r={6} fill={C.hl} />);
-  }
+  if (hl.has("glutes")) for (const h of [f.hipN, f.hipF]) out.push(<MusDot key={"g" + h[0]} c={add(h, [0, 1])} r={6.5} />);
   if (hl.has("gluteMed")) {
-    const o1 = add(add(f.pelvis, mul(f.n, 10)), mul(f.d, 4));
-    const o2 = add(add(f.pelvis, mul(f.n, -10)), mul(f.d, 4));
-    out.push(<circle key="gm1" cx={o1[0]} cy={o1[1]} r={4.5} fill={C.hl} />);
-    out.push(<circle key="gm2" cx={o2[0]} cy={o2[1]} r={4.5} fill={C.hl} />);
+    out.push(<MusDot key="gm1" c={add(add(f.pelvis, mul(f.n, 11)), mul(f.d, 5))} r={4.8} />);
+    out.push(<MusDot key="gm2" c={add(add(f.pelvis, mul(f.n, -11)), mul(f.d, 5))} r={4.8} />);
   }
   return out;
 }
 
-/** Deltoides na vista frontal (desenhados por cima dos braços). */
 function deltHlFront(f: Frame, hl: Set<Hl>) {
   const out: ReactNode[] = [];
-  for (const [k, r] of [["deltF", 5], ["deltS", 5.4], ["deltR", 5]] as const) {
+  for (const [k, r] of [["deltF", 5.6], ["deltS", 6], ["deltR", 5.6]] as const) {
     if (hl.has(k)) {
-      out.push(<circle key={k + 1} cx={f.arm.root[0]} cy={f.arm.root[1]} r={r} fill={C.hl} />);
-      out.push(<circle key={k + 2} cx={f.arm2.root[0]} cy={f.arm2.root[1]} r={r} fill={C.hl} />);
+      out.push(<MusDot key={k + 1} c={f.arm.root} r={r} />);
+      out.push(<MusDot key={k + 2} c={f.arm2.root} r={r} />);
     }
   }
   return out;
@@ -165,8 +273,9 @@ function deltHlFront(f: Frame, hl: Set<Hl>) {
 function Plate({ c, r }: { c: Vec; r: number }) {
   return (
     <g>
-      <circle cx={c[0]} cy={c[1]} r={r} fill={C.plate} stroke={C.plateRim} strokeWidth={2} />
-      <circle cx={c[0]} cy={c[1]} r={r * 0.28} fill={C.metal} />
+      <circle cx={c[0]} cy={c[1]} r={r} fill="url(#tp-plate)" stroke={C.padEdge} strokeWidth={1.2} />
+      <circle cx={c[0]} cy={c[1]} r={r * 0.62} fill="none" stroke={C.plateRim} strokeWidth={1} />
+      <circle cx={c[0]} cy={c[1]} r={r * 0.2} fill={C.metal} />
     </g>
   );
 }
@@ -174,7 +283,7 @@ function Plate({ c, r }: { c: Vec; r: number }) {
 function DumbbellSide({ c }: { c: Vec }) {
   return (
     <g>
-      <circle cx={c[0]} cy={c[1]} r={6} fill={C.plate} stroke={C.plateRim} strokeWidth={1.6} />
+      <circle cx={c[0]} cy={c[1]} r={6.5} fill="url(#tp-plate)" stroke={C.padEdge} strokeWidth={1} />
       <circle cx={c[0]} cy={c[1]} r={1.8} fill={C.metal} />
     </g>
   );
@@ -261,7 +370,7 @@ function gearNodes(f: Frame, gear: Gear[], layer: "far" | "near"): ReactNode[] {
         const c = add(f.arm.grip, [0, 7]);
         out.push(
           <g key={k}>
-            <circle cx={c[0]} cy={c[1] + 2} r={7.5} fill={C.plate} stroke={C.plateRim} strokeWidth={1.6} />
+            <circle cx={c[0]} cy={c[1] + 2} r={7.5} fill={C.plate} stroke={C.padEdge} strokeWidth={1} />
           </g>,
         );
         break;
@@ -278,7 +387,7 @@ function gearNodes(f: Frame, gear: Gear[], layer: "far" | "near"): ReactNode[] {
         if (g.to === "ankle") {
           if (layer === "near") {
             out.push(line(from, f.leg.end, k + "a"));
-            out.push(<circle key={k + "s"} cx={f.leg.end[0]} cy={f.leg.end[1]} r={3.5} fill={C.plateRim} />);
+            out.push(<circle key={k + "s"} cx={f.leg.end[0]} cy={f.leg.end[1]} r={3.5} fill={C.accent} />);
           }
           break;
         }
@@ -289,7 +398,7 @@ function gearNodes(f: Frame, gear: Gear[], layer: "far" | "near"): ReactNode[] {
             if (g.handle === "bar")
               out.push(<Seg key={k + "h"} a={add(f.arm.grip, [0, 0])} b={add(far2.grip, [0, 0])} w={3} c={C.metal} />);
             else if (g.handle === "rope")
-              out.push(<circle key={k + "h"} cx={f.arm.grip[0]} cy={f.arm.grip[1]} r={3} fill={C.plateRim} />);
+              out.push(<circle key={k + "h"} cx={f.arm.grip[0]} cy={f.arm.grip[1]} r={3} fill={C.accent} />);
             else out.push(<circle key={k + "h"} cx={f.arm.grip[0]} cy={f.arm.grip[1]} r={2.8} fill={C.metal} />);
           }
         } else if (layer === "near") {
@@ -301,7 +410,7 @@ function gearNodes(f: Frame, gear: Gear[], layer: "far" | "near"): ReactNode[] {
               out.pop();
               out.push(line([cx, from[1]], mid, k + "c"));
               out.push(
-                <Seg key={k + "bar"} a={g.handle === "bar" ? add(f.arm.grip, [5, 0]) : f.arm.grip} b={g.handle === "bar" ? add(f.arm2.grip, [-5, 0]) : f.arm2.grip} w={g.handle === "bar" ? 3 : 2} c={g.handle === "bar" ? C.metal : C.plateRim} />,
+                <Seg key={k + "bar"} a={g.handle === "bar" ? add(f.arm.grip, [5, 0]) : f.arm.grip} b={g.handle === "bar" ? add(f.arm2.grip, [-5, 0]) : f.arm2.grip} w={g.handle === "bar" ? 3 : 2} c={g.handle === "bar" ? C.metal : C.accent} />,
               );
             } else out.push(line(mirror(from), f.arm2.grip, k + "l"));
           }
@@ -311,7 +420,7 @@ function gearNodes(f: Frame, gear: Gear[], layer: "far" | "near"): ReactNode[] {
       case "lever": {
         const lv = (p: Vec, q: Vec, kk: string) => (
           <g key={kk}>
-            <Seg a={p} b={q} w={4.5} c={C.frame} />
+            <FrameSeg a={p} b={q} w={4.5} />
             <circle cx={p[0]} cy={p[1]} r={3.5} fill={C.metal} />
             <circle cx={q[0]} cy={q[1]} r={3} fill={C.metal} />
           </g>
@@ -337,7 +446,7 @@ function gearNodes(f: Frame, gear: Gear[], layer: "far" | "near"): ReactNode[] {
           const c = add(base, mul(fr, 8 * s));
           return (
             <g key={kk}>
-              {pivot && <Seg a={pivot} b={c} w={4} c={C.frame} />}
+              {pivot && <FrameSeg a={pivot} b={c} w={4} />}
               {pivot && <circle cx={pivot[0]} cy={pivot[1]} r={3.5} fill={C.metal} />}
               <circle cx={c[0]} cy={c[1]} r={5} fill={C.pad} stroke={C.padEdge} strokeWidth={1.5} />
             </g>
@@ -359,8 +468,8 @@ function gearNodes(f: Frame, gear: Gear[], layer: "far" | "near"): ReactNode[] {
         const back = add(c, mul(front(u), -3.5));
         out.push(
           <g key={k}>
-            {g.rail && <Seg a={back} b={add(back, mul(g.rail, 1))} w={3} c={C.frame} />}
-            <Seg a={add(back, mul(u, -w))} b={add(back, mul(u, w))} w={5} c={C.frame} />
+            {g.rail && <FrameSeg a={back} b={add(back, mul(g.rail, 1))} w={3} />}
+            <FrameSeg a={add(back, mul(u, -w))} b={add(back, mul(u, w))} w={5} />
           </g>,
         );
         break;
@@ -369,14 +478,14 @@ function gearNodes(f: Frame, gear: Gear[], layer: "far" | "near"): ReactNode[] {
         if (layer !== "near") break;
         const a = g.at === "ankle" ? f.leg.end : lerpV(f.leg.root, f.leg.mid, 0.85);
         const b = g.at === "ankle" ? farLeg.end : lerpV(farLeg.root, farLeg.mid, 0.85);
-        out.push(<Seg key={k} a={a} b={b} w={3} c={C.plateRim} o={0.9} />);
+        out.push(<Seg key={k} a={a} b={b} w={3} c={C.accent} o={0.9} />);
         break;
       }
       case "wheel": {
         if (layer !== "near") break;
         out.push(
           <g key={k}>
-            <circle cx={f.arm.grip[0]} cy={f.arm.grip[1] + 3} r={8} fill={C.plate} stroke={C.plateRim} strokeWidth={2} />
+            <circle cx={f.arm.grip[0]} cy={f.arm.grip[1] + 3} r={8} fill="url(#tp-plate)" stroke={C.padEdge} strokeWidth={1.2} />
           </g>,
         );
         break;
@@ -399,8 +508,8 @@ export function Props({ props }: { props: Prop[] }) {
               <g key={i}>
                 {p.post !== false && (
                   <>
-                    <Seg a={[p.x, p.y]} b={[p.x, FLOOR - 2]} w={4} c={C.frame} />
-                    <Seg a={[p.x - 12, FLOOR - 1.5]} b={[p.x + 12, FLOOR - 1.5]} w={3} c={C.frame} />
+                    <FrameSeg a={[p.x, p.y]} b={[p.x, FLOOR - 2]} w={4} />
+                    <FrameSeg a={[p.x - 12, FLOOR - 1.5]} b={[p.x + 12, FLOOR - 1.5]} w={3} />
                   </>
                 )}
                 <rect
@@ -411,7 +520,7 @@ export function Props({ props }: { props: Prop[] }) {
                   rx={3}
                   fill={C.pad}
                   stroke={C.padEdge}
-                  strokeWidth={1.2}
+                  strokeWidth={1}
                   transform={`rotate(${p.a ?? 0} ${p.x} ${p.y})`}
                 />
               </g>
@@ -420,12 +529,12 @@ export function Props({ props }: { props: Prop[] }) {
           case "box":
             return <rect key={i} x={p.x} y={p.y} width={p.w} height={p.h} rx={p.r ?? 2} fill={C.pad} stroke={C.padEdge} strokeWidth={1.2} />;
           case "line":
-            return <Seg key={i} a={p.p} b={p.q} w={p.w ?? 4} c={C.frame} />;
+            return <FrameSeg key={i} a={p.p} b={p.q} w={p.w ?? 4} />;
           case "pulley":
             return (
               <g key={i}>
-                <Seg a={[p.x, Math.min(p.y - 8, 20)]} b={[p.x, FLOOR]} w={5} c={C.frame} />
-                <circle cx={p.x} cy={p.y} r={4.5} fill={C.plate} stroke={C.metal} strokeWidth={1.5} />
+                <FrameSeg a={[p.x, Math.min(p.y - 8, 20)]} b={[p.x, FLOOR]} w={5} />
+                <circle cx={p.x} cy={p.y} r={4.5} fill={C.frame} stroke={C.frameEdge} strokeWidth={1.4} />
               </g>
             );
           case "bar":
@@ -433,8 +542,8 @@ export function Props({ props }: { props: Prop[] }) {
               <Seg key={i} a={[p.x - p.w / 2, p.y]} b={[p.x + p.w / 2, p.y]} w={3.5} c={C.metal} />
             ) : (
               <g key={i}>
-                <Seg a={[p.x + 16, p.y - 4]} b={[p.x + 16, FLOOR]} w={4} c={C.frame} />
-                <Seg a={[p.x, p.y]} b={[p.x + 16, p.y - 4]} w={3} c={C.frame} />
+                <FrameSeg a={[p.x + 16, p.y - 4]} b={[p.x + 16, FLOOR]} w={4} />
+                <FrameSeg a={[p.x, p.y]} b={[p.x + 16, p.y - 4]} w={3} />
                 <circle cx={p.x} cy={p.y} r={3} fill={C.metal} />
               </g>
             );
@@ -450,54 +559,95 @@ export function Props({ props }: { props: Prop[] }) {
 
 // ---------- Boneco ----------
 
+function Torso({ f }: { f: Frame }) {
+  const side = f.view === "side";
+  if (side) {
+    const chest = add(lerpV(f.pelvis, f.neck, 0.72), mul(f.n, 2.5));
+    const glute = add(add(f.pelvis, mul(f.n, -3)), mul(f.d, 0));
+    const d = [...taper(f.pelvis, f.neck, 17, 18), circle(glute, 9), circle(chest, 9.5)];
+    const s = f.n[0] * LIGHT[0] + f.n[1] * LIGHT[1] > 0 ? 1 : -1;
+    return (
+      <g>
+        <Part d={d} fill={C.skin} />
+        <path d={taper(lerpV(f.pelvis, f.neck, 0.05), lerpV(f.pelvis, f.neck, 0.95), 5, 6, -s * 5.5)[0]} fill={C.shade} opacity={0.45} />
+        <path d={taper(lerpV(f.pelvis, f.neck, 0.1), lerpV(f.pelvis, f.neck, 0.9), 5, 6, s * 3.5)[0]} fill={C.light} opacity={0.7} />
+        {/* contorno do peitoral e linha abdominal */}
+        <path
+          d={`M ${P(add(lerpV(f.pelvis, f.neck, 0.62), mul(f.n, 8.5)))} Q ${P(add(lerpV(f.pelvis, f.neck, 0.6), mul(f.n, 2)))} ${P(add(lerpV(f.pelvis, f.neck, 0.72), mul(f.n, -1)))}`}
+          fill="none"
+          stroke={C.line}
+          strokeWidth={0.7}
+        />
+        <path d={`M ${P(add(lerpV(f.pelvis, f.neck, 0.12), mul(f.n, 7.5)))} L ${P(add(lerpV(f.pelvis, f.neck, 0.52), mul(f.n, 7.5)))}`} stroke={C.line} strokeWidth={0.6} opacity={0.8} />
+      </g>
+    );
+  }
+  // Frente: tronco em "V" com definição de peitoral e abdômen
+  const at = (t: number, w: number): Vec => add(lerpV(f.pelvis, f.neck, t), mul(f.n, w));
+  const outline = [at(1, 16.5), at(0.62, 14), at(0.32, 10.5), at(0, 12), at(0, -12), at(0.32, -10.5), at(0.62, -14), at(1, -16.5)];
+  const d = `M ${outline.map(P).join(" L ")} Z`;
+  const def = [
+    `M ${P(at(0.97, 0))} L ${P(at(0.08, 0))}`,
+    `M ${P(at(0.62, 13))} Q ${P(at(0.56, 6))} ${P(at(0.64, 0))} Q ${P(at(0.56, -6))} ${P(at(0.62, -13))}`,
+    `M ${P(at(0.46, 5))} L ${P(at(0.46, -5))}`,
+    `M ${P(at(0.34, 5))} L ${P(at(0.34, -5))}`,
+    `M ${P(at(0.22, 4.5))} L ${P(at(0.22, -4.5))}`,
+  ];
+  return (
+    <g>
+      <Part d={[d, circle(at(0.02, 0), 7)]} fill={C.skin} />
+      <path d={`M ${[at(0.95, -12), at(0.62, -11), at(0.3, -8.5), at(0.05, -9.5), at(0.05, -5), at(0.62, -5)].map(P).join(" L ")} Z`} fill={C.shade} opacity={0.35} />
+      <path d={`M ${[at(0.95, 3), at(0.95, 11), at(0.66, 10), at(0.66, 3)].map(P).join(" L ")} Z`} fill={C.light} opacity={0.6} />
+      {def.map((p, i) => (
+        <path key={i} d={p} fill="none" stroke={C.line} strokeWidth={0.7} />
+      ))}
+    </g>
+  );
+}
+
+function Head({ f }: { f: Frame }) {
+  const side = f.view === "side";
+  const neckTop = add(f.neck, mul(f.d, 6));
+  const h = f.head;
+  return (
+    <g>
+      <Part d={taper(f.neck, neckTop, 7.5, 6.5)} fill={C.skin} />
+      {/* cabelo (atrás) + rosto (na frente) formam um corte curto */}
+      <Part d={[circle(add(add(h, mul(f.d, 1.4)), mul(f.n, side ? -1.2 : 0)), 8.4)]} fill="#6f7277" />
+      <path d={side ? circle(add(add(h, mul(f.d, -1.1)), mul(f.n, 1.1)), 7.7) : `M ${h[0] - 7.2} ${h[1] + 1} a 7.2 8.2 0 1 0 14.4 0 a 7.2 8.2 0 1 0 -14.4 0 Z`} fill={C.skin} />
+      <circle cx={h[0] - 1.5} cy={h[1] + 0.5} r={3.2} fill={C.light} opacity={0.6} />
+      {side && <path d={circle(add(add(h, mul(f.n, 7.4)), mul(f.d, -1)), 1.5)} fill={C.skin} stroke={C.outline} strokeWidth={0.5} />}
+    </g>
+  );
+}
+
 export function Body({ f, gear = [], hl = [], ghost }: { f: Frame; gear?: Gear[]; hl?: Hl[]; ghost?: boolean }) {
   const hs = new Set(hl);
   const side = f.view === "side";
-  const cNear = ghost ? "#ffffff" : C.near;
-  const cFar = ghost ? "#ffffff" : C.far;
-  const cTorso = ghost ? "#ffffff" : C.torso;
   const arm2 = side ? shift(f.arm2, DEPTH) : f.arm2;
   const leg2 = side ? shift(f.leg2, DEPTH) : f.leg2;
-  const show = (nodes: ReactNode[]) => (ghost ? null : nodes);
-
-  let torso: ReactNode;
-  if (side) {
-    torso = (
-      <g>
-        <Seg a={f.pelvis} b={f.neck} w={W.torso} c={cTorso} />
-        <circle cx={f.pelvis[0]} cy={f.pelvis[1]} r={8.5} fill={cTorso} />
-      </g>
-    );
-  } else {
-    const s1 = add(f.neck, mul(f.n, 15));
-    const s2 = add(f.neck, mul(f.n, -15));
-    const h1 = add(f.pelvis, mul(f.n, 10));
-    const h2 = add(f.pelvis, mul(f.n, -10));
-    torso = <polygon points={[s1, s2, h2, h1].map(P).join(" ")} fill={cTorso} stroke={cTorso} strokeWidth={5} strokeLinejoin="round" />;
-  }
-  const neckTop = add(f.neck, mul(f.d, 5));
   const showLegs = f.view !== "end";
+  if (ghost) return null;
 
   return (
-    <g opacity={ghost ? 0.13 : 1}>
-      {show(gearNodes(f, gear, "far"))}
-      {showLegs && <LegShape l={leg2} c={side ? cFar : cNear} far={side} front={!side} />}
-      {side && <ArmShape l={arm2} c={cFar} far />}
-      {side && show(armHl(arm2, hs, false).map((n, i) => <g key={i} opacity={0.55}>{n}</g>))}
-      {side && showLegs && show(legHl(leg2, hs, false).map((n, i) => <g key={i} opacity={0.55}>{n}</g>))}
-      <Seg a={f.neck} b={neckTop} w={6} c={cTorso} />
-      {torso}
-      <circle cx={f.head[0]} cy={f.head[1]} r={8} fill={cNear} />
-      {show(side ? torsoHlSide(f, hs) : torsoHlFront(f, hs))}
-      {showLegs && <LegShape l={f.leg} c={cNear} front={!side} />}
-      {!side && <ArmShape l={arm2} c={cNear} />}
-      {showLegs && show(legHl(f.leg, hs, !side))}
-      {!side && showLegs && show(legHl(leg2, hs, true))}
-      {!side && show(armHl(arm2, hs, true))}
-      <ArmShape l={f.arm} c={cNear} />
-      {show(armHl(f.arm, hs, !side))}
-      {!side && show(deltHlFront(f, hs))}
-      {show(gearNodes(f, gear, "near"))}
+    <g>
+      {gearNodes(f, gear, "far")}
+      {showLegs && <LegShape l={leg2} far={side} isFront={!side} />}
+      {side && showLegs && legHl(leg2, hs, false).map((n, i) => <g key={i} opacity={0.6}>{n}</g>)}
+      {side && <ArmShape l={arm2} far />}
+      {side && armHl(arm2, hs, false).map((n, i) => <g key={i} opacity={0.6}>{n}</g>)}
+      <Torso f={f} />
+      <Head f={f} />
+      {side ? torsoHlSide(f, hs) : torsoHlFront(f, hs)}
+      {showLegs && <LegShape l={f.leg} isFront={!side} />}
+      {showLegs && legHl(f.leg, hs, !side)}
+      {!side && showLegs && <>{legHl(leg2, hs, true)}</>}
+      {!side && <ArmShape l={arm2} />}
+      {!side && armHl(arm2, hs, true)}
+      <ArmShape l={f.arm} />
+      {armHl(f.arm, hs, !side)}
+      {side ? deltHlSide(f, hs) : deltHlFront(f, hs)}
+      {gearNodes(f, gear, "near")}
     </g>
   );
 }

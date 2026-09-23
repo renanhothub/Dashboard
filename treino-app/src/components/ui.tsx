@@ -1,0 +1,83 @@
+import type { ReactNode } from "react";
+import { Link, NavLink, useNavigate } from "react-router-dom";
+import type { Exercise, Level } from "../data/types";
+import ExerciseAnimation from "../illustration/ExerciseAnimation";
+
+export function Header({ title, subtitle, back }: { title: string; subtitle?: string; back?: boolean }) {
+  const nav = useNavigate();
+  return (
+    <header className="pt-safe sticky top-0 z-10 border-b border-white/5 bg-ink-950/90 backdrop-blur">
+      <div className="flex items-center gap-3 px-4 py-3">
+        {back && (
+          <button onClick={() => nav(-1)} aria-label="Voltar" className="-ml-1 grid h-9 w-9 place-items-center rounded-full bg-ink-800 text-lg">
+            ‹
+          </button>
+        )}
+        <div className="min-w-0">
+          <h1 className="truncate text-lg font-semibold tracking-tight">{title}</h1>
+          {subtitle && <p className="truncate text-xs text-ink-300">{subtitle}</p>}
+        </div>
+      </div>
+    </header>
+  );
+}
+
+const levelColor: Record<Level, string> = {
+  Iniciante: "bg-emerald-500/15 text-emerald-300",
+  Intermediário: "bg-gold-400/15 text-gold-300",
+  Avançado: "bg-flame-500/15 text-flame-400",
+};
+
+export function LevelBadge({ level }: { level: Level }) {
+  return <span className={`rounded-full px-2 py-0.5 text-[11px] font-medium ${levelColor[level]}`}>{level}</span>;
+}
+
+/** Cartão branco com a ilustração em dois quadros (início → fim). */
+export function Illustration({ ex, mode = "pair", labels }: { ex: Exercise; mode?: "pair" | "anim"; labels?: boolean }) {
+  return (
+    <div className="overflow-hidden rounded-2xl bg-white">
+      <ExerciseAnimation anim={ex.anim} mode={mode} className="block w-full" title={ex.name} />
+      {labels && mode === "pair" && (
+        <div className="grid grid-cols-2 pb-2 text-center text-[11px] font-medium uppercase tracking-wider text-neutral-400">
+          <span>Início</span>
+          <span>Fim</span>
+        </div>
+      )}
+    </div>
+  );
+}
+
+export function ExerciseCard({ ex, to, right }: { ex: Exercise; to: string; right?: ReactNode }) {
+  return (
+    <Link to={to} className="block rounded-3xl bg-ink-900 p-3 ring-1 ring-white/5 active:scale-[0.99]">
+      <Illustration ex={ex} />
+      <div className="mt-3 flex items-start justify-between gap-2 px-1">
+        <div className="min-w-0">
+          <h3 className="font-semibold leading-tight">{ex.name}</h3>
+          <p className="mt-0.5 truncate text-xs text-ink-300">{ex.equipment}</p>
+        </div>
+        <div className="flex shrink-0 flex-col items-end gap-1">
+          <LevelBadge level={ex.level} />
+          {right}
+        </div>
+      </div>
+    </Link>
+  );
+}
+
+export function BottomNav() {
+  const item = ({ isActive }: { isActive: boolean }) =>
+    `flex flex-1 flex-col items-center gap-0.5 py-2 text-[11px] ${isActive ? "text-gold-400" : "text-ink-300"}`;
+  return (
+    <nav className="pb-safe fixed inset-x-0 bottom-0 z-20 border-t border-white/5 bg-ink-950/95 backdrop-blur">
+      <div className="mx-auto flex max-w-md">
+        <NavLink to="/" end className={item}>
+          <span className="text-lg">◎</span>Músculos
+        </NavLink>
+        <NavLink to="/favoritos" className={item}>
+          <span className="text-lg">★</span>Favoritos
+        </NavLink>
+      </div>
+    </nav>
+  );
+}

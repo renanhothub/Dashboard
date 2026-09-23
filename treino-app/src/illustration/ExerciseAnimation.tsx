@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Body, C, Props } from "./Figure";
+import { Body, Props } from "./Figure";
 import { fitViewBox } from "./bounds";
-import { easeCycle, FLOOR, interpolate, normalize, solve } from "./kinematics";
+import { easeCycle, FLOOR, interpolate, normalize, solve, type Frame } from "./kinematics";
 import type { Anim } from "./types";
 
 const reducedMotion = () =>
@@ -9,25 +9,35 @@ const reducedMotion = () =>
 
 interface Props {
   anim: Anim;
-  /** Anima o movimento; se falso, mostra a posição final com a inicial "fantasma". */
-  playing?: boolean;
-  /** Posição fixa (0 = início, 1 = fim) quando não está animando. */
-  still?: number;
-  ghost?: boolean;
+  /** "pair" = dois quadros (início e fim) lado a lado; "anim" = um quadro animado. */
+  mode?: "pair" | "anim";
   className?: string;
   title?: string;
 }
 
-export default function ExerciseAnimation({ anim, playing = false, still = 1, ghost = true, className, title }: Props) {
+function Scene({ anim, frame, vb }: { anim: Anim; frame: Frame; vb: number[] }) {
+  return (
+    <g>
+      {!anim.noFloor && <ellipse cx={vb[0] + vb[2] / 2} cy={FLOOR + 1} rx={vb[2] * 0.38} ry={3.2} fill="#000" opacity={0.07} />}
+      {anim.props && <Props props={anim.props} />}
+      <Body f={frame} gear={anim.gear} hl={anim.hl} />
+    </g>
+  );
+}
+
+export default function ExerciseAnimation({ anim, mode = "pair", className, title }: Props) {
   const view = anim.view ?? "side";
   const a = useMemo(() => normalize(anim.a), [anim]);
   const b = useMemo(() => normalize(anim.b), [anim]);
-  const [t, setT] = useState(still);
+  const fa = useMemo(() => solve(a, view), [a, view]);
+  const fb = useMemo(() => solve(b, view), [b, view]);
+  const vb = useMemo(() => fitViewBox(anim, [fa, fb, solve(interpolate(a, b, 0.5), view)]), [anim, a, b, fa, fb, view]);
+  const [t, setT] = useState(0);
   const raf = useRef<number>();
 
   useEffect(() => {
-    if (!playing || reducedMotion()) {
-      setT(still);
+    if (mode !== "anim" || reducedMotion()) {
+      setT(1);
       return;
     }
     const period = anim.period ?? 2800;
@@ -40,19 +50,27 @@ export default function ExerciseAnimation({ anim, playing = false, still = 1, gh
     return () => {
       if (raf.current) cancelAnimationFrame(raf.current);
     };
-  }, [playing, still, anim.period]);
+  }, [mode, anim.period]);
+
+  if (mode === "pair") {
+    const gap = vb[2] * 0.04;
+    const box = [vb[0], vb[1], vb[2] * 2 + gap, vb[3]];
+    return (
+      <svg viewBox={box.join(" ")} className={className} role="img" aria-label={title}>
+        {title && <title>{title}</title>}
+        <Scene anim={anim} frame={fa} vb={vb} />
+        <g transform={`translate(${vb[2] + gap} 0)`}>
+          <Scene anim={anim} frame={fb} vb={vb} />
+        </g>
+      </svg>
+    );
+  }
 
   const frame = solve(interpolate(a, b, t), view);
-  const start = useMemo(() => solve(a, view), [a, view]);
-  const vb = useMemo(() => fitViewBox(anim, [start, solve(b, view), solve(interpolate(a, b, 0.5), view)]), [anim, a, b, start, view]);
-
   return (
     <svg viewBox={vb.join(" ")} className={className} role="img" aria-label={title}>
       {title && <title>{title}</title>}
-      {!anim.noFloor && <line x1={vb[0] + 6} y1={FLOOR + 1} x2={vb[0] + vb[2] - 6} y2={FLOOR + 1} stroke={C.floor} strokeWidth={2} strokeLinecap="round" />}
-      {anim.props && <Props props={anim.props} />}
-      {ghost && <Body f={start} ghost />}
-      <Body f={frame} gear={anim.gear} hl={anim.hl} />
+      <Scene anim={anim} frame={frame} vb={vb} />
     </svg>
   );
 }
