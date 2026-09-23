@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { allExercises, muscles } from "../data";
+import { allExercises, byLevel, muscles } from "../data";
 import { Sheet, Thumb } from "./ui";
 
 /** Seleção de exercícios para adicionar a um treino. */
@@ -9,7 +9,8 @@ export default function ExercisePicker({ open, onClose, onPick, selected }: { op
   const list = useMemo(() => {
     const t = q.trim().toLowerCase();
     if (t.length >= 2) return allExercises.filter((r) => `${r.exercise.name} ${r.exercise.equipment} ${r.muscle.name}`.toLowerCase().includes(t));
-    return allExercises.filter((r) => r.muscle.id === muscle);
+    const m = muscles.find((x) => x.id === muscle)!;
+    return m.portions.flatMap((portion) => byLevel(portion.exercises).map((exercise) => ({ muscle: m, portion, exercise })));
   }, [q, muscle]);
 
   return (

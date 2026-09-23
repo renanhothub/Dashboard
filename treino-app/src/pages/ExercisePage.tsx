@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, Navigate, useParams } from "react-router-dom";
-import { findExercise } from "../data";
+import { byLevel, findExercise } from "../data";
 import { Header, Illustration, LevelBadge, Sheet } from "../components/ui";
 import { addToWorkout, bestKg, createWorkout, exerciseHistory, fmtDate, useTraining } from "../training";
 import { useFavorites } from "../favorites";
@@ -122,7 +122,7 @@ export default function ExercisePage() {
         <div className="mt-8">
           <h2 className="text-sm font-semibold text-ink-300">Outras variações · {portion.name}</h2>
           <div className="no-scrollbar -mx-4 mt-3 flex gap-3 overflow-x-auto px-4">
-            {portion.exercises
+            {byLevel(portion.exercises)
               .filter((e) => e.id !== ex.id)
               .map((e) => (
                 <Link key={e.id} to={`/exercicio/${e.id}`} className="w-44 shrink-0">

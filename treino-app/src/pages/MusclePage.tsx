@@ -1,5 +1,5 @@
 import { Navigate, useParams, useSearchParams } from "react-router-dom";
-import { findMuscle } from "../data";
+import { byLevel, findMuscle } from "../data";
 import { ExerciseCard, Header } from "../components/ui";
 
 export default function MusclePage() {
@@ -30,7 +30,7 @@ export default function MusclePage() {
       </div>
       <p className="px-4 text-sm text-ink-300">{portion.detail}</p>
       <div className="space-y-4 px-4 pt-4">
-        {portion.exercises.map((ex) => (
+        {byLevel(portion.exercises).map((ex) => (
           <ExerciseCard key={ex.id} ex={ex} to={`/exercicio/${ex.id}`} />
         ))}
       </div>
