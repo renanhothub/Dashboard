@@ -1,8 +1,9 @@
 import type { ReactNode } from "react";
-import { Link, NavLink, useNavigate } from "react-router-dom";
+import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
 import type { Exercise, Level } from "../data/types";
 import { imageFor } from "../data/images";
 import ExerciseAnimation from "../illustration/ExerciseAnimation";
+import { useTraining } from "../training";
 
 export function Header({ title, subtitle, back }: { title: string; subtitle?: string; back?: boolean }) {
   const nav = useNavigate();
@@ -74,18 +75,60 @@ export function ExerciseCard({ ex, to, right }: { ex: Exercise; to: string; righ
 }
 
 export function BottomNav() {
+  const { active } = useTraining();
+  const { pathname } = useLocation();
   const item = ({ isActive }: { isActive: boolean }) =>
     `flex flex-1 flex-col items-center gap-0.5 py-2 text-[11px] ${isActive ? "text-gold-400" : "text-ink-300"}`;
   return (
     <nav className="pb-safe fixed inset-x-0 bottom-0 z-20 border-t border-white/5 bg-ink-950/95 backdrop-blur">
+      {active && pathname !== "/sessao" && (
+        <Link to="/sessao" className="mx-auto flex max-w-md items-center justify-between bg-gold-400 px-4 py-2 text-sm font-semibold text-ink-950">
+          <span>● {active.workoutName} em andamento</span>
+          <span>Continuar ›</span>
+        </Link>
+      )}
       <div className="mx-auto flex max-w-md">
         <NavLink to="/" end className={item}>
           <span className="text-lg">◎</span>Músculos
+        </NavLink>
+        <NavLink to="/treinos" className={item}>
+          <span className="text-lg">▤</span>Treinos
+        </NavLink>
+        <NavLink to="/historico" className={item}>
+          <span className="text-lg">↺</span>Histórico
         </NavLink>
         <NavLink to="/favoritos" className={item}>
           <span className="text-lg">★</span>Favoritos
         </NavLink>
       </div>
     </nav>
+  );
+}
+
+/** Miniatura do exercício (imagem ou ilustração). */
+export function Thumb({ ex, className = "w-24" }: { ex: Exercise; className?: string }) {
+  return (
+    <div className={`shrink-0 ${className}`}>
+      <Illustration ex={ex} />
+    </div>
+  );
+}
+
+/** Painel que sobe da parte de baixo da tela. */
+export function Sheet({ open, onClose, title, children }: { open: boolean; onClose: () => void; title: string; children: ReactNode }) {
+  if (!open) return null;
+  return (
+    <div className="fixed inset-0 z-40 flex items-end justify-center bg-black/60" onClick={onClose}>
+      <div className="pb-safe max-h-[85vh] w-full max-w-md overflow-y-auto rounded-t-3xl bg-ink-900 p-4 ring-1 ring-white/10" onClick={(e) => e.stopPropagation()}>
+        <div className="mx-auto mb-3 h-1 w-10 rounded-full bg-ink-700" />
+        <div className="mb-3 flex items-center justify-between">
+          <h2 className="text-base font-semibold">{title}</h2>
+          <button onClick={onClose} className="rounded-full bg-ink-800 px-3 py-1 text-sm text-ink-300">
+            Fechar
+          </button>
+        </div>
+        {children}
+      </div>
+    </div>
   );
 }

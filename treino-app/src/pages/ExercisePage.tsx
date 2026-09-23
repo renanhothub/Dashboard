@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { Link, Navigate, useParams } from "react-router-dom";
 import { findExercise } from "../data";
-import { Header, Illustration, LevelBadge } from "../components/ui";
+import { Header, Illustration, LevelBadge, Sheet } from "../components/ui";
+import { addToWorkout, bestKg, createWorkout, exerciseHistory, fmtDate, useTraining } from "../training";
 import { useFavorites } from "../favorites";
 import { imageFor } from "../data/images";
 
@@ -10,9 +11,18 @@ export default function ExercisePage() {
   const ref = findExercise(id);
   const fav = useFavorites();
   const [mode, setMode] = useState<"pair" | "anim">("pair");
+  const { workouts, sessions } = useTraining();
+  const [adding, setAdding] = useState(false);
+  const [added, setAdded] = useState<string | null>(null);
   if (!ref) return <Navigate to="/" replace />;
   const { muscle, portion, exercise: ex } = ref;
   const isFav = fav.has(ex.id);
+  const history = exerciseHistory(ex.id, sessions).slice(0, 5);
+  const add = (wid: string, name: string) => {
+    addToWorkout(wid, ex.id);
+    setAdded(name);
+    setAdding(false);
+  };
 
   return (
     <div>
@@ -68,12 +78,46 @@ export default function ExercisePage() {
           </ul>
         </section>
 
-        <button
-          onClick={() => fav.toggle(ex.id)}
-          className={`mt-6 w-full rounded-2xl py-3.5 text-sm font-semibold ${isFav ? "bg-ink-800 text-gold-300" : "bg-gold-400 text-ink-950"}`}
-        >
-          {isFav ? "★ Nos favoritos" : "☆ Adicionar aos favoritos"}
-        </button>
+        <div className="mt-6 grid grid-cols-[1fr_auto] gap-2">
+          <button onClick={() => setAdding(true)} className="rounded-2xl bg-gold-400 py-3.5 text-sm font-semibold text-ink-950">
+            + Adicionar ao treino
+          </button>
+          <button
+            onClick={() => fav.toggle(ex.id)}
+            aria-label={isFav ? "Remover dos favoritos" : "Adicionar aos favoritos"}
+            className={`rounded-2xl px-5 text-lg ${isFav ? "bg-ink-800 text-gold-300" : "bg-ink-800 text-ink-300"}`}
+          >
+            {isFav ? "★" : "☆"}
+          </button>
+        </div>
+        {added && <p className="mt-2 text-center text-xs text-emerald-300">Adicionado ao {added} ✓</p>}
+
+        <section className="mt-6">
+          <h2 className="text-sm font-semibold uppercase tracking-wider text-gold-400">Seu histórico</h2>
+          {history.length === 0 ? (
+            <p className="mt-2 text-sm text-ink-300">Nenhum registro ainda. Adicione a um treino e registre suas séries.</p>
+          ) : (
+            <ul className="mt-2 space-y-2">
+              {history.map((h, i) => (
+                <li key={i} className="rounded-2xl bg-ink-900 p-3 ring-1 ring-white/5">
+                  <div className="flex justify-between text-xs text-ink-300">
+                    <span>
+                      {fmtDate(h.date)} · {h.workout}
+                    </span>
+                    <span className="font-semibold text-gold-300">máx. {bestKg(h.sets)} kg</span>
+                  </div>
+                  <p className="mt-1 text-xs">
+                    {h.sets.map((x, j) => (
+                      <span key={j} className="mr-2 inline-block rounded-md bg-ink-800 px-1.5 py-0.5">
+                        {x.kg || "–"} kg × {x.reps || "–"}
+                      </span>
+                    ))}
+                  </p>
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
 
         <div className="mt-8">
           <h2 className="text-sm font-semibold text-ink-300">Outras variações · {portion.name}</h2>
@@ -89,6 +133,37 @@ export default function ExercisePage() {
           </div>
         </div>
       </div>
+
+      <Sheet open={adding} onClose={() => setAdding(false)} title="Adicionar a qual treino?">
+        <ul className="space-y-2">
+          {workouts.map((w) => {
+            const has = w.items.some((i) => i.exId === ex.id);
+            return (
+              <li key={w.id}>
+                <button disabled={has} onClick={() => add(w.id, w.name)} className="flex w-full items-center justify-between rounded-2xl bg-ink-800 px-4 py-3 text-left disabled:opacity-50">
+                  <span>
+                    <span className="block font-semibold">{w.name}</span>
+                    <span className="text-xs text-ink-300">{w.items.length} exercícios</span>
+                  </span>
+                  <span className="text-sm text-gold-400">{has ? "Já está" : "Adicionar"}</span>
+                </button>
+              </li>
+            );
+          })}
+          <li>
+            <button
+              onClick={() => {
+                const w = createWorkout(undefined, ex.id);
+                setAdded(w.name);
+                setAdding(false);
+              }}
+              className="w-full rounded-2xl border border-dashed border-gold-400/50 py-3 text-sm font-semibold text-gold-400"
+            >
+              + Criar novo treino com este exercício
+            </button>
+          </li>
+        </ul>
+      </Sheet>
     </div>
   );
 }

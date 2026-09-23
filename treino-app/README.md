@@ -5,7 +5,10 @@ App de treino para celular (PWA) com biblioteca de exercícios organizada por **
 - 11 grupos musculares, 32 porções e 100 exercícios (mínimo de 3 variações por porção)
 - Cada exercício tem ilustração em dois quadros, **início e fim**, com o músculo-alvo destacado em vermelho, além de um modo de animação
 - Passo a passo da execução, dica do personal, nível e prescrição (séries x repetições · descanso)
-- Busca, favoritos salvos no aparelho e funcionamento offline (instalável na tela inicial)
+- **Meus treinos**: monte Treino A, B, C… com os exercícios escolhidos, número de séries e ordem
+- **Registro de treino**: carga e repetições de cada série, com a carga da última vez como referência e cronômetro de descanso automático
+- **Histórico**: sessões realizadas, volume total e evolução de carga por exercício
+- Busca, favoritos e funcionamento offline (instalável na tela inicial). Os dados ficam salvos no próprio aparelho
 
 ## Rodar
 
