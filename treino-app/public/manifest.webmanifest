@@ -1,0 +1,14 @@
+{
+  "name": "Treino Pro",
+  "short_name": "Treino",
+  "description": "Biblioteca de exercícios por músculo e porção muscular, com ilustrações animadas.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0b0c0f",
+  "theme_color": "#0b0c0f",
+  "icons": [
+    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}

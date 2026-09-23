@@ -1,0 +1,29 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+}
+
+html,
+body {
+  background: #0b0c0f;
+  color: #e7e9ee;
+  -webkit-tap-highlight-color: transparent;
+  overscroll-behavior-y: none;
+}
+
+.pt-safe {
+  padding-top: max(env(safe-area-inset-top), 0px);
+}
+.pb-safe {
+  padding-bottom: max(env(safe-area-inset-bottom), 12px);
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  scrollbar-width: none;
+}
