@@ -39,7 +39,7 @@ export function Illustration({ ex, mode = "pair", labels }: { ex: Exercise; mode
   if (img)
     return (
       <div className="overflow-hidden rounded-2xl bg-white">
-        <img src={img} alt={ex.name} loading="lazy" className="block aspect-[12/5] w-full object-contain" />
+        <img src={img} alt={ex.name} loading="lazy" className="block aspect-[21/10] w-full object-contain" />
       </div>
     );
   return (
