@@ -34,7 +34,9 @@ e apagaria os dados). Depois é só abrir o endereço gerado no celular e "Adici
 
 **Render grátis (só para testar):** *New → Web Service* → repositório `Dashboard`, branch do app,
 *Root Directory* `treino-app`, linguagem *Docker*, instância *Free*. Atenção: no plano grátis o servidor
-dorme após 15 min sem uso e **apaga contas, treinos e fotos** ao dormir ou ser atualizado.
+dormiria após 15 min sem uso (apagando os dados). Para evitar isso, o servidor visita o próprio endereço
+público a cada 10 min (`RENDER_EXTERNAL_URL`, definido pelo Render; desative com `KEEP_AWAKE=0`).
+Os dados ainda são apagados a cada nova publicação/reinício — para guardá-los de vez, use o plano pago com disco.
 
 Qualquer serviço que rode Docker com volume persistente também funciona (Railway, Fly.io, VPS).
 

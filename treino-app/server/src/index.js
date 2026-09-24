@@ -262,7 +262,25 @@ if (fs.existsSync(dist)) {
   app.get("*", (_req, res) => res.sendFile(path.join(dist, "index.html")));
 }
 
+/**
+ * Mantém o servidor acordado no plano grátis do Render, que desliga após 15 min sem visitas
+ * (e apaga os dados ao desligar). O servidor visita o próprio endereço público periodicamente.
+ * O Render define RENDER_EXTERNAL_URL automaticamente. Desative com KEEP_AWAKE=0.
+ */
+export function startKeepAwake(url = process.env.RENDER_EXTERNAL_URL, minutes = Number(process.env.KEEP_AWAKE_MINUTES ?? 10)) {
+  if (!url || process.env.KEEP_AWAKE === "0") return null;
+  const ping = () =>
+    fetch(`${url.replace(/\/$/, "")}/api/health`, { headers: { "User-Agent": "hot-training-keep-awake" } })
+      .then((r) => console.log(`[keep-awake] ${new Date().toISOString()} ${r.status}`))
+      .catch((e) => console.log(`[keep-awake] falhou: ${e.message}`));
+  console.log(`[keep-awake] ativo: ${url} a cada ${minutes} min`);
+  return setInterval(ping, minutes * 60_000);
+}
+
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const port = Number(process.env.PORT ?? 3002);
-  app.listen(port, () => console.log(`Hot Training API em http://localhost:${port}`));
+  app.listen(port, () => {
+    console.log(`Hot Training API em http://localhost:${port}`);
+    startKeepAwake();
+  });
 }
