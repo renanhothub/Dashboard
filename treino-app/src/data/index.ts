@@ -5,8 +5,9 @@ import { ombros } from "./muscles/ombros";
 import { antebraco, biceps, triceps } from "./muscles/bracos";
 import { abdomen } from "./muscles/abdomen";
 import { gluteos, panturrilha, posterior, quadriceps } from "./muscles/pernas";
+import { adutores } from "./muscles/adutores";
 
-export const muscles: Muscle[] = [peito, costas, ombros, biceps, triceps, antebraco, abdomen, quadriceps, posterior, gluteos, panturrilha];
+export const muscles: Muscle[] = [peito, costas, ombros, biceps, triceps, antebraco, abdomen, quadriceps, posterior, gluteos, adutores, panturrilha];
 
 export function findMuscle(id?: string) {
   return muscles.find((m) => m.id === id);

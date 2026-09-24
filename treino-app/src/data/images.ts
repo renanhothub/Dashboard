@@ -26,10 +26,14 @@ for (const [path, url] of Object.entries(files)) {
   bySlug.set(s.replace(/^\d+-?/, ""), url);
 }
 
-/** Imagem enviada para o exercício (por número da lista, id ou nome), se existir. */
+/**
+ * Imagem enviada para o exercício, se existir. Procura primeiro pelo nome do exercício no nome do
+ * arquivo (ex.: "101_cadeira_adutora.webp"), depois pelo id e, por último, pelo número da lista.
+ * Assim, incluir exercícios novos no meio da lista não desalinha as imagens.
+ */
 const imageById = new Map<string, string>();
 allExercises.forEach(({ exercise }, i) => {
-  const url = byNumber.get(i + 1) ?? bySlug.get(exercise.id) ?? bySlug.get(slug(exercise.name));
+  const url = bySlug.get(slug(exercise.name)) ?? bySlug.get(exercise.id) ?? byNumber.get(i + 1);
   if (url) imageById.set(exercise.id, url);
 });
 
