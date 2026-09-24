@@ -1,7 +1,7 @@
 {
-  "name": "Atlas do Treino",
-  "short_name": "Atlas do Treino",
-  "description": "Atlas de exercícios por músculo e porção muscular, treinos, registro de cargas e competição entre amigos.",
+  "name": "Evolution",
+  "short_name": "Evolution",
+  "description": "Guia de exercícios por músculo e porção muscular, treinos, registro de cargas e competição entre amigos.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",

@@ -280,7 +280,7 @@ export function startKeepAwake(url = process.env.RENDER_EXTERNAL_URL, minutes = 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const port = Number(process.env.PORT ?? 3002);
   app.listen(port, () => {
-    console.log(`Atlas do Treino API em http://localhost:${port}`);
+    console.log(`Evolution API em http://localhost:${port}`);
     startKeepAwake();
   });
 }

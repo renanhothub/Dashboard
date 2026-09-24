@@ -1,4 +1,4 @@
-# Atlas do Treino
+# Evolution
 
 App de treino para celular (PWA) com biblioteca de exercícios organizada por **músculo → porção muscular → variações**.
 

@@ -1,4 +1,4 @@
-/** Cliente da API do servidor Atlas do Treino. */
+/** Cliente da API do servidor Evolution. */
 
 /** Endereço do servidor. Vazio = mesmo domínio do app (padrão em produção e no dev via proxy). */
 export const API_BASE = (import.meta.env.VITE_API_URL ?? "").replace(/\/$/, "");
