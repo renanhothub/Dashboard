@@ -1,4 +1,4 @@
-# Hot Training
+# Atlas do Treino
 
 App de treino para celular (PWA) com biblioteca de exercícios organizada por **músculo → porção muscular → variações**.
 

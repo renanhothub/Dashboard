@@ -54,10 +54,10 @@ export function inviteLink(code: string) {
 
 export async function shareInvite(g: { name: string; code: string }) {
   const url = inviteLink(g.code);
-  const text = `Bora competir no Hot Training! Entre na competição "${g.name}" com o código ${g.code}:`;
+  const text = `Bora competir no Atlas do Treino! Entre na competição "${g.name}" com o código ${g.code}:`;
   if (navigator.share) {
     try {
-      await navigator.share({ title: "Hot Training", text, url });
+      await navigator.share({ title: "Atlas do Treino", text, url });
       return "shared";
     } catch {
       /* cancelado */

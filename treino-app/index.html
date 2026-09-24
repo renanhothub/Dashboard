@@ -3,40 +3,65 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <meta name="theme-color" content="#0b0c0f" />
+    <meta name="theme-color" content="#0b0b0d" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-    <meta name="apple-mobile-web-app-title" content="Hot Training" />
+    <meta name="apple-mobile-web-app-title" content="Atlas do Treino" />
     <link rel="manifest" href="./manifest.webmanifest" />
     <link rel="icon" href="./icon.svg" type="image/svg+xml" />
-    <link rel="apple-touch-icon" href="./icon.svg" />
-    <title>Hot Training</title>
+    <link rel="apple-touch-icon" href="./apple-touch-icon.png" />
+    <title>Atlas do Treino</title>
     <style>
-      /* Tela de carregamento: aparece até o app ficar pronto (o React substitui o conteúdo de #root) */
-      html, body { margin: 0; background: #0b0c0f; }
-      .splash { position: fixed; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 22px; background: #0b0c0f; font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
-      .splash svg { width: 96px; height: 96px; animation: lift 1.4s ease-in-out infinite; }
-      .splash p { margin: 0; color: #e8c35a; font-size: 12px; font-weight: 600; letter-spacing: 0.3em; }
-      .splash .bar { width: 140px; height: 4px; border-radius: 4px; background: #262a33; overflow: hidden; }
-      .splash .bar i { display: block; width: 40%; height: 100%; border-radius: 4px; background: #e8c35a; animation: load 1.1s ease-in-out infinite; }
-      @keyframes lift { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+      /* Tela de abertura: aparece até o app ficar pronto (o React substitui o conteúdo de #root) */
+      html, body { margin: 0; background: #0b0b0d; }
+      .splash { position: fixed; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 18px; padding: 24px; box-sizing: border-box; background: radial-gradient(ellipse at 50% 38%, #1d1708 0%, #0b0b0d 62%); font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+      .splash .atlas { overflow: visible; width: min(58vw, 260px); height: auto; max-height: 56vh; animation: neon-on 1.6s ease-out both; }
+      .splash h1 { margin: 0; color: #f4c54a; font-size: clamp(20px, 6.4vw, 30px); font-weight: 800; letter-spacing: 0.22em; text-align: center; text-shadow: 0 0 10px rgba(244, 197, 74, 0.75), 0 0 28px rgba(244, 197, 74, 0.35); animation: neon-on 1.6s 0.25s ease-out both; }
+      .splash p { margin: -8px 0 0; color: #b9a67a; font-size: 12px; letter-spacing: 0.3em; text-transform: uppercase; animation: fade 1s 0.8s both; }
+      .splash .bar { width: 140px; height: 3px; margin-top: 10px; border-radius: 3px; background: #2a2416; overflow: hidden; animation: fade 1s 0.8s both; }
+      .splash .bar i { display: block; width: 40%; height: 100%; border-radius: 3px; background: #f4c54a; box-shadow: 0 0 8px #f4c54a; animation: load 1.1s ease-in-out infinite; }
+      /* efeito de letreiro neon acendendo */
+      @keyframes neon-on { 0% { opacity: 0; } 12% { opacity: 0.9; } 18% { opacity: 0.2; } 30% { opacity: 1; } 36% { opacity: 0.5; } 48%, 100% { opacity: 1; } }
+      @keyframes fade { from { opacity: 0; } to { opacity: 1; } }
       @keyframes load { 0% { transform: translateX(-100%); } 100% { transform: translateX(260%); } }
+      @media (prefers-reduced-motion: reduce) { .splash * { animation: none !important; } }
     </style>
   </head>
   <body class="bg-ink-950">
     <div id="root">
-      <div class="splash" role="status" aria-label="Carregando">
-        <svg viewBox="0 0 512 512" aria-hidden="true">
-          <rect width="512" height="512" rx="112" fill="#12141a" />
-          <g fill="#e8c35a">
-            <rect x="96" y="236" width="320" height="40" rx="12" />
-            <rect x="120" y="176" width="44" height="160" rx="14" />
-            <rect x="348" y="176" width="44" height="160" rx="14" />
-            <rect x="72" y="206" width="36" height="100" rx="12" />
-            <rect x="404" y="206" width="36" height="100" rx="12" />
-          </g>
-        </svg>
-        <p>HOT TRAINING</p>
+      <div class="splash" role="status" aria-label="Carregando o Atlas do Treino">
+        <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="120 20 272 470" class="atlas">
+    <defs><linearGradient id="fadeG" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="0" y2="512"><stop offset="0.76" stop-color="#fff"/><stop offset="0.95" stop-color="#fff" stop-opacity="0"/></linearGradient>
+    <mask id="fade"><rect x="-100" y="-100" width="712" height="712" fill="url(#fadeG)"/></mask></defs>
+    <g mask="url(#fade)">
+    <defs><filter id="glow" filterUnits="userSpaceOnUse" x="-100" y="-100" width="712" height="712"><feGaussianBlur stdDeviation="9"/></filter></defs>
+    <g fill="none" stroke="#f4c54a" stroke-width="12.8" stroke-linecap="round" stroke-linejoin="round" filter="url(#glow)" opacity="0.75">
+    <circle cx="256" cy="116" r="84"/>
+    <ellipse cx="256" cy="116" rx="36" ry="84"/>
+    <ellipse cx="256" cy="116" rx="68" ry="84"/>
+    <path d="M 180 80 Q 256 98 332 80"/><path d="M 172 116 L 340 116"/><path d="M 180 152 Q 256 134 332 152"/>
+    <circle cx="256" cy="244" r="24"/>
+    <path d="M 200 510 C 200.3 500.3 200.3 468.3 202.0 452.0 C 203.7 435.7 208.0 424.0 210.0 412.0 C 212.0 400.0 215.7 393.3 214.0 380.0 C 212.3 366.7 203.3 345.3 200.0 332.0 C 196.7 318.7 198.2 311.7 194.0 300.0 C 189.8 288.3 179.7 272.7 175.0 262.0 C 170.3 251.3 164.2 244.7 166.0 236.0 C 167.8 227.3 179.7 217.7 186.0 210.0 C 192.3 202.3 202.7 195.3 204.0 190.0 C 205.3 184.7 199.0 178.0 194.0 178.0 C 189.0 178.0 182.0 185.0 174.0 190.0 C 166.0 195.0 152.7 201.0 146.0 208.0 C 139.3 215.0 134.5 223.7 134.0 232.0 C 133.5 240.3 138.3 249.3 143.0 258.0 C 147.7 266.7 154.8 277.7 162.0 284.0 C 169.2 290.3 177.3 295.0 186.0 296.0 C 194.7 297.0 204.7 292.0 214.0 290.0 C 223.3 288.0 236.7 287.0 242.0 284.0 C 247.3 281.0 242.0 274.0 246.0 272.0 C 250.0 270.0 262.0 270.0 266.0 272.0 C 270.0 274.0 264.7 281.0 270.0 284.0 C 275.3 287.0 288.7 288.0 298.0 290.0 C 307.3 292.0 317.3 297.0 326.0 296.0 C 334.7 295.0 342.8 290.3 350.0 284.0 C 357.2 277.7 364.3 266.7 369.0 258.0 C 373.7 249.3 378.5 240.3 378.0 232.0 C 377.5 223.7 372.7 215.0 366.0 208.0 C 359.3 201.0 346.0 195.0 338.0 190.0 C 330.0 185.0 323.0 178.0 318.0 178.0 C 313.0 178.0 306.7 184.7 308.0 190.0 C 309.3 195.3 319.7 202.3 326.0 210.0 C 332.3 217.7 344.2 227.3 346.0 236.0 C 347.8 244.7 341.7 251.3 337.0 262.0 C 332.3 272.7 322.2 288.3 318.0 300.0 C 313.8 311.7 315.3 318.7 312.0 332.0 C 308.7 345.3 299.7 366.7 298.0 380.0 C 296.3 393.3 300.0 400.0 302.0 412.0 C 304.0 424.0 308.3 435.7 310.0 452.0 C 311.7 468.3 311.7 500.3 312.0 510.0"/>
+    <path d="M 222 340 C 227.7 342.0 244.7 352.0 256.0 352.0 C 267.3 352.0 284.3 342.0 290.0 340.0" stroke-width="4.4"/><path d="M 256 356 C 256.0 363.0 256.0 391.0 256.0 398.0" stroke-width="4.4"/><path d="M 238 372 C 241.0 372.7 250.0 376.0 256.0 376.0 C 262.0 376.0 271.0 372.7 274.0 372.0" stroke-width="4.4"/><path d="M 240 392 C 242.7 392.7 250.7 396.0 256.0 396.0 C 261.3 396.0 269.3 392.7 272.0 392.0" stroke-width="4.4"/><path d="M 278 426 C 276.7 435.0 271.7 467.7 270.0 480.0 C 268.3 492.3 268.3 496.7 268.0 500.0" stroke-width="4.4"/><path d="M 234 426 C 235.3 435.0 240.3 467.7 242.0 480.0 C 243.7 492.3 243.7 496.7 244.0 500.0" stroke-width="4.4"/></g>
+    <g fill="none" stroke="#f4c54a" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" >
+    <circle cx="256" cy="116" r="84"/>
+    <ellipse cx="256" cy="116" rx="36" ry="84"/>
+    <ellipse cx="256" cy="116" rx="68" ry="84"/>
+    <path d="M 180 80 Q 256 98 332 80"/><path d="M 172 116 L 340 116"/><path d="M 180 152 Q 256 134 332 152"/>
+    <circle cx="256" cy="244" r="24"/>
+    <path d="M 200 510 C 200.3 500.3 200.3 468.3 202.0 452.0 C 203.7 435.7 208.0 424.0 210.0 412.0 C 212.0 400.0 215.7 393.3 214.0 380.0 C 212.3 366.7 203.3 345.3 200.0 332.0 C 196.7 318.7 198.2 311.7 194.0 300.0 C 189.8 288.3 179.7 272.7 175.0 262.0 C 170.3 251.3 164.2 244.7 166.0 236.0 C 167.8 227.3 179.7 217.7 186.0 210.0 C 192.3 202.3 202.7 195.3 204.0 190.0 C 205.3 184.7 199.0 178.0 194.0 178.0 C 189.0 178.0 182.0 185.0 174.0 190.0 C 166.0 195.0 152.7 201.0 146.0 208.0 C 139.3 215.0 134.5 223.7 134.0 232.0 C 133.5 240.3 138.3 249.3 143.0 258.0 C 147.7 266.7 154.8 277.7 162.0 284.0 C 169.2 290.3 177.3 295.0 186.0 296.0 C 194.7 297.0 204.7 292.0 214.0 290.0 C 223.3 288.0 236.7 287.0 242.0 284.0 C 247.3 281.0 242.0 274.0 246.0 272.0 C 250.0 270.0 262.0 270.0 266.0 272.0 C 270.0 274.0 264.7 281.0 270.0 284.0 C 275.3 287.0 288.7 288.0 298.0 290.0 C 307.3 292.0 317.3 297.0 326.0 296.0 C 334.7 295.0 342.8 290.3 350.0 284.0 C 357.2 277.7 364.3 266.7 369.0 258.0 C 373.7 249.3 378.5 240.3 378.0 232.0 C 377.5 223.7 372.7 215.0 366.0 208.0 C 359.3 201.0 346.0 195.0 338.0 190.0 C 330.0 185.0 323.0 178.0 318.0 178.0 C 313.0 178.0 306.7 184.7 308.0 190.0 C 309.3 195.3 319.7 202.3 326.0 210.0 C 332.3 217.7 344.2 227.3 346.0 236.0 C 347.8 244.7 341.7 251.3 337.0 262.0 C 332.3 272.7 322.2 288.3 318.0 300.0 C 313.8 311.7 315.3 318.7 312.0 332.0 C 308.7 345.3 299.7 366.7 298.0 380.0 C 296.3 393.3 300.0 400.0 302.0 412.0 C 304.0 424.0 308.3 435.7 310.0 452.0 C 311.7 468.3 311.7 500.3 312.0 510.0"/>
+    <path d="M 222 340 C 227.7 342.0 244.7 352.0 256.0 352.0 C 267.3 352.0 284.3 342.0 290.0 340.0" stroke-width="4.4"/><path d="M 256 356 C 256.0 363.0 256.0 391.0 256.0 398.0" stroke-width="4.4"/><path d="M 238 372 C 241.0 372.7 250.0 376.0 256.0 376.0 C 262.0 376.0 271.0 372.7 274.0 372.0" stroke-width="4.4"/><path d="M 240 392 C 242.7 392.7 250.7 396.0 256.0 396.0 C 261.3 396.0 269.3 392.7 272.0 392.0" stroke-width="4.4"/><path d="M 278 426 C 276.7 435.0 271.7 467.7 270.0 480.0 C 268.3 492.3 268.3 496.7 268.0 500.0" stroke-width="4.4"/><path d="M 234 426 C 235.3 435.0 240.3 467.7 242.0 480.0 C 243.7 492.3 243.7 496.7 244.0 500.0" stroke-width="4.4"/></g>
+    <g fill="none" stroke="#fff6d8" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" opacity="0.8">
+    <circle cx="256" cy="116" r="84"/>
+    <ellipse cx="256" cy="116" rx="36" ry="84"/>
+    <ellipse cx="256" cy="116" rx="68" ry="84"/>
+    <path d="M 180 80 Q 256 98 332 80"/><path d="M 172 116 L 340 116"/><path d="M 180 152 Q 256 134 332 152"/>
+    <circle cx="256" cy="244" r="24"/>
+    <path d="M 200 510 C 200.3 500.3 200.3 468.3 202.0 452.0 C 203.7 435.7 208.0 424.0 210.0 412.0 C 212.0 400.0 215.7 393.3 214.0 380.0 C 212.3 366.7 203.3 345.3 200.0 332.0 C 196.7 318.7 198.2 311.7 194.0 300.0 C 189.8 288.3 179.7 272.7 175.0 262.0 C 170.3 251.3 164.2 244.7 166.0 236.0 C 167.8 227.3 179.7 217.7 186.0 210.0 C 192.3 202.3 202.7 195.3 204.0 190.0 C 205.3 184.7 199.0 178.0 194.0 178.0 C 189.0 178.0 182.0 185.0 174.0 190.0 C 166.0 195.0 152.7 201.0 146.0 208.0 C 139.3 215.0 134.5 223.7 134.0 232.0 C 133.5 240.3 138.3 249.3 143.0 258.0 C 147.7 266.7 154.8 277.7 162.0 284.0 C 169.2 290.3 177.3 295.0 186.0 296.0 C 194.7 297.0 204.7 292.0 214.0 290.0 C 223.3 288.0 236.7 287.0 242.0 284.0 C 247.3 281.0 242.0 274.0 246.0 272.0 C 250.0 270.0 262.0 270.0 266.0 272.0 C 270.0 274.0 264.7 281.0 270.0 284.0 C 275.3 287.0 288.7 288.0 298.0 290.0 C 307.3 292.0 317.3 297.0 326.0 296.0 C 334.7 295.0 342.8 290.3 350.0 284.0 C 357.2 277.7 364.3 266.7 369.0 258.0 C 373.7 249.3 378.5 240.3 378.0 232.0 C 377.5 223.7 372.7 215.0 366.0 208.0 C 359.3 201.0 346.0 195.0 338.0 190.0 C 330.0 185.0 323.0 178.0 318.0 178.0 C 313.0 178.0 306.7 184.7 308.0 190.0 C 309.3 195.3 319.7 202.3 326.0 210.0 C 332.3 217.7 344.2 227.3 346.0 236.0 C 347.8 244.7 341.7 251.3 337.0 262.0 C 332.3 272.7 322.2 288.3 318.0 300.0 C 313.8 311.7 315.3 318.7 312.0 332.0 C 308.7 345.3 299.7 366.7 298.0 380.0 C 296.3 393.3 300.0 400.0 302.0 412.0 C 304.0 424.0 308.3 435.7 310.0 452.0 C 311.7 468.3 311.7 500.3 312.0 510.0"/>
+    <path d="M 222 340 C 227.7 342.0 244.7 352.0 256.0 352.0 C 267.3 352.0 284.3 342.0 290.0 340.0" stroke-width="4.4"/><path d="M 256 356 C 256.0 363.0 256.0 391.0 256.0 398.0" stroke-width="4.4"/><path d="M 238 372 C 241.0 372.7 250.0 376.0 256.0 376.0 C 262.0 376.0 271.0 372.7 274.0 372.0" stroke-width="4.4"/><path d="M 240 392 C 242.7 392.7 250.7 396.0 256.0 396.0 C 261.3 396.0 269.3 392.7 272.0 392.0" stroke-width="4.4"/><path d="M 278 426 C 276.7 435.0 271.7 467.7 270.0 480.0 C 268.3 492.3 268.3 496.7 268.0 500.0" stroke-width="4.4"/><path d="M 234 426 C 235.3 435.0 240.3 467.7 242.0 480.0 C 243.7 492.3 243.7 496.7 244.0 500.0" stroke-width="4.4"/></g>
+    </g></svg>
+        <h1>ATLAS DO TREINO</h1>
+        <p>Sustente sua evolução</p>
         <div class="bar"><i></i></div>
       </div>
     </div>
