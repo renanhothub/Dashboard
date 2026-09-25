@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { allExercises, muscles } from "../data";
 import { Illustration } from "../components/ui";
 import { MenuButton } from "../components/MenuDrawer";
+import { ElectricName } from "../components/ElectricName";
 
 export default function Home() {
   const [q, setQ] = useState("");
@@ -19,7 +20,9 @@ export default function Home() {
           <div className="justify-self-start">
             <MenuButton />
           </div>
-          <p className="brand-rays px-2 text-[15px] font-bold uppercase tracking-[0.3em] max-[370px]:tracking-[0.2em]">Evolution</p>
+          <p className="px-2 text-[15px] font-bold uppercase tracking-[0.3em] max-[370px]:tracking-[0.2em]">
+            <ElectricName text="Evolution" />
+          </p>
           <Link to="/favoritos" className="justify-self-end whitespace-nowrap rounded-full bg-ink-800 px-3 py-1.5 text-xs text-gold-300">
             ★ Favoritos
           </Link>
