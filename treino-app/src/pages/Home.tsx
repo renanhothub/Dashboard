@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { allExercises, muscles } from "../data";
 import { Illustration } from "../components/ui";
+import { MenuButton } from "../components/MenuDrawer";
 
 export default function Home() {
   const [q, setQ] = useState("");
@@ -15,7 +16,10 @@ export default function Home() {
     <div>
       <header className="pt-safe px-4 pb-2">
         <div className="flex items-center justify-between pt-5">
-          <p className="text-xs font-medium uppercase tracking-[0.2em] text-gold-400">Evolution</p>
+          <div className="flex items-center gap-3">
+            <MenuButton />
+            <p className="text-xs font-medium uppercase tracking-[0.2em] text-gold-400">Evolution</p>
+          </div>
           <Link to="/favoritos" className="rounded-full bg-ink-800 px-3 py-1.5 text-xs text-gold-300">
             ★ Favoritos
           </Link>

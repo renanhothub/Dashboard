@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { lazy, Suspense, useEffect } from "react";
 import { Route, Routes, useLocation } from "react-router-dom";
 import { BottomNav } from "./components/ui";
 import { SvgDefs } from "./illustration/Figure";
@@ -16,6 +16,10 @@ import Friends from "./pages/Friends";
 import GroupPage from "./pages/GroupPage";
 import InvitePage from "./pages/InvitePage";
 import "./account";
+
+// A guia de suplementos só é baixada quando aberta, para não pesar a abertura do app.
+const Supplements = lazy(() => import("./pages/Supplements"));
+const SupplementPage = lazy(() => import("./pages/SupplementPage"));
 
 export default function App() {
   const { pathname } = useLocation();
@@ -45,6 +49,8 @@ export default function App() {
         <Route path="/amigos" element={<Friends />} />
         <Route path="/amigos/:id" element={<GroupPage />} />
         <Route path="/convite/:code" element={<InvitePage />} />
+        <Route path="/suplementos" element={<Suspense fallback={null}><Supplements /></Suspense>} />
+        <Route path="/suplementos/:id" element={<Suspense fallback={null}><SupplementPage /></Suspense>} />
         <Route path="*" element={<Home />} />
       </Routes>
       <BottomNav />
