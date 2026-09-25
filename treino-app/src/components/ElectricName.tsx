@@ -92,7 +92,7 @@ export function ElectricName({ text }: { text: string }) {
         if (Math.random() < (burst > 0 ? 0.75 : 0.12)) alive.push(spark(size.w, size.h));
         return alive;
       });
-    }, 70);
+    }, 117); // ritmo dos raios (~40% mais lento que 70 ms)
     return () => window.clearInterval(t);
   }, [size.w, size.h]);
 
