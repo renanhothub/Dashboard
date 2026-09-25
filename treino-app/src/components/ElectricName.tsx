@@ -83,13 +83,13 @@ export function ElectricName({ text }: { text: string }) {
     const t = window.setInterval(() => {
       if (document.hidden) return;
       // de tempos em tempos vem uma descarga com vários raios; no resto, faíscas esporádicas
-      if (burst <= 0 && Math.random() < 0.05) burst = Math.round(rnd(5, 9));
+      if (burst <= 0 && Math.random() < 0.07) burst = Math.round(rnd(5, 9));
       setBolts((prev) => {
         const alive = prev.map((b) => ({ ...b, life: b.life - 1 })).filter((b) => b.life > 0);
-        const chance = burst > 0 ? 1 : 0.45;
+        const chance = burst > 0 ? 1 : 0.62;
         if (burst > 0) burst--;
         if (Math.random() < chance) alive.push(spark(size.w, size.h));
-        if (burst > 0 && Math.random() < 0.7) alive.push(spark(size.w, size.h));
+        if (Math.random() < (burst > 0 ? 0.75 : 0.12)) alive.push(spark(size.w, size.h));
         return alive;
       });
     }, 70);
