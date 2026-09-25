@@ -15,16 +15,16 @@ export default function Home() {
   return (
     <div>
       <header className="pt-safe px-4 pb-2">
-        <div className="flex items-center justify-between pt-5">
-          <div className="flex items-center gap-3">
+        <div className="grid grid-cols-[1fr_auto_1fr] items-center pt-5">
+          <div className="justify-self-start">
             <MenuButton />
-            <p className="text-xs font-medium uppercase tracking-[0.2em] text-gold-400">Evolution</p>
           </div>
-          <Link to="/favoritos" className="rounded-full bg-ink-800 px-3 py-1.5 text-xs text-gold-300">
+          <p className="brand-rays px-2 text-[15px] font-bold uppercase tracking-[0.3em] max-[370px]:tracking-[0.2em]">Evolution</p>
+          <Link to="/favoritos" className="justify-self-end whitespace-nowrap rounded-full bg-ink-800 px-3 py-1.5 text-xs text-gold-300">
             ★ Favoritos
           </Link>
         </div>
-        <h1 className="mt-1 text-2xl font-semibold tracking-tight">Qual músculo hoje?</h1>
+        <h1 className="mt-4 text-2xl font-semibold tracking-tight">Qual músculo hoje?</h1>
         <p className="mt-1 text-sm text-ink-300">
           {muscles.length} grupos · {allExercises.length} exercícios com execução ilustrada
         </p>

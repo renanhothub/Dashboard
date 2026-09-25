@@ -27,3 +27,53 @@ body {
 .no-scrollbar {
   scrollbar-width: none;
 }
+
+/* Nome "EVOLUTION" no topo: brilho neon com raios de luz saindo dele */
+.brand-rays {
+  position: relative;
+  isolation: isolate;
+  color: #fff4d6;
+  text-shadow: 0 0 8px rgba(244, 197, 74, 0.9), 0 0 22px rgba(244, 197, 74, 0.45);
+}
+.brand-rays::before,
+.brand-rays::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  z-index: -1;
+  pointer-events: none;
+  border-radius: 50%;
+}
+/* raios longos, girando devagar */
+.brand-rays::before {
+  width: 240px;
+  height: 240px;
+  margin: -120px 0 0 -120px;
+  background: repeating-conic-gradient(from 0deg, rgba(244, 197, 74, 0.32) 0deg 1.6deg, transparent 1.6deg 12deg);
+  -webkit-mask: radial-gradient(circle, #000 6%, rgba(0, 0, 0, 0.35) 26%, transparent 50%);
+  mask: radial-gradient(circle, #000 6%, rgba(0, 0, 0, 0.35) 26%, transparent 50%);
+  animation: rays-spin 30s linear infinite;
+}
+/* halo central + raios curtos girando ao contrário */
+.brand-rays::after {
+  width: 170px;
+  height: 170px;
+  margin: -85px 0 0 -85px;
+  background: radial-gradient(circle, rgba(244, 197, 74, 0.3) 0%, rgba(244, 197, 74, 0.06) 38%, transparent 60%),
+    repeating-conic-gradient(from 6deg, rgba(255, 224, 138, 0.4) 0deg 1.2deg, transparent 1.2deg 20deg);
+  -webkit-mask: radial-gradient(circle, #000 20%, transparent 64%);
+  mask: radial-gradient(circle, #000 20%, transparent 64%);
+  animation: rays-spin 45s linear infinite reverse;
+}
+@keyframes rays-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .brand-rays::before,
+  .brand-rays::after {
+    animation: none;
+  }
+}
