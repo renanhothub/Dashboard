@@ -1,0 +1,259 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Guia Ilustrado de Musculação – 103 exercícios</title>
+<meta name="description" content="103 exercícios de musculação ilustrados, com execução passo a passo, dicas, erros comuns e 4 planos de treino prontos. PDF com acesso imediato.">
+<meta property="og:title" content="Guia Ilustrado de Musculação – 103 exercícios">
+<meta property="og:description" content="Execução passo a passo, dicas, erros comuns e 4 planos de treino prontos.">
+<meta property="og:image" content="img/075.jpg">
+<style>
+  :root {
+    --escuro: #16181d; --verm: #e2452b; --verm2: #c93a22; --cinza: #5b6270;
+    --claro: #f3f4f6; --linha: #e3e5e9; --fundo: #ffffff; --texto: #16181d; --verde: #2f9e5a;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body { margin: 0; font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif; color: var(--texto); background: var(--fundo); line-height: 1.55; }
+  img { max-width: 100%; display: block; }
+  .wrap { max-width: 1040px; margin: 0 auto; padding: 0 16px; }
+  h1, h2, h3 { line-height: 1.15; margin: 0; }
+  section { padding: 64px 0; }
+
+  .btn { display: inline-block; background: var(--verm); color: #fff; text-decoration: none; font-weight: 800; font-size: 1.1rem;
+         padding: 18px 32px; border-radius: 12px; box-shadow: 0 8px 24px rgba(226,69,43,.35); transition: transform .15s, background .15s; text-align: center; }
+  .btn:hover { background: var(--verm2); transform: translateY(-2px); }
+  .btn small { display: block; font-weight: 500; font-size: .8rem; opacity: .9; }
+
+  .hero { background: var(--escuro); color: #fff; padding: 56px 0 72px; }
+  .hero .grid { display: grid; grid-template-columns: 1.05fr 1fr; gap: 40px; align-items: center; }
+  .selo { display: inline-block; font-size: .78rem; font-weight: 700; letter-spacing: .18em; color: #aab0bb; margin-bottom: 18px; }
+  .hero h1 { font-size: clamp(2rem, 5vw, 3.2rem); font-weight: 900; letter-spacing: -.02em; }
+  .hero h1 em { font-style: normal; color: var(--verm); }
+  .hero p.sub { font-size: 1.15rem; color: #d7dae0; margin: 18px 0 28px; }
+  .hero .img { background: #fff; border-radius: 18px; padding: 12px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 22px; }
+  .chips span { border: 1px solid #454a55; border-radius: 99px; padding: 6px 14px; font-size: .85rem; }
+
+  .titulo { text-align: center; max-width: 700px; margin: 0 auto 40px; }
+  .titulo h2 { font-size: clamp(1.6rem, 3.5vw, 2.3rem); font-weight: 900; }
+  .titulo h2::after { content: ''; display: block; width: 60px; height: 5px; background: var(--verm); margin: 16px auto 0; border-radius: 3px; }
+  .titulo p { color: var(--cinza); margin-top: 16px; font-size: 1.05rem; }
+
+  .dores { background: var(--claro); }
+  .dores ul { list-style: none; padding: 0; margin: 0 auto; max-width: 680px; display: grid; gap: 12px; }
+  .dores li { background: #fff; border-radius: 12px; padding: 16px 20px 16px 52px; position: relative; font-size: 1.05rem; }
+  .dores li::before { content: '✗'; position: absolute; left: 20px; color: var(--verm); font-weight: 900; }
+
+  .cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+  .card { border: 1px solid var(--linha); border-radius: 16px; padding: 24px; }
+  .card .ic { min-width: 44px; width: fit-content; padding: 0 10px; height: 44px; border-radius: 12px; background: var(--escuro); color: #fff; display: grid; place-items: center; font-weight: 900; margin-bottom: 14px; }
+  .card h3 { font-size: 1.15rem; margin-bottom: 8px; }
+  .card p { margin: 0; color: var(--cinza); }
+
+  .galeria { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .galeria figure { margin: 0; border: 1px solid var(--linha); border-radius: 14px; padding: 8px; background: #fff; }
+  .galeria figcaption { font-size: .9rem; font-weight: 700; padding: 8px 4px 2px; }
+
+  .paginas { background: var(--escuro); color: #fff; }
+  .paginas .titulo p { color: #c3c7cf; }
+  .paginas .grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+  .paginas img { border-radius: 10px; box-shadow: 0 12px 30px rgba(0,0,0,.4); }
+  .paginas figcaption { text-align: center; color: #c3c7cf; font-size: .9rem; margin-top: 10px; }
+  .paginas figure { margin: 0; }
+
+  .grupos { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; max-width: 820px; margin: 0 auto; }
+  .grupos span { background: var(--claro); border-radius: 99px; padding: 8px 16px; font-weight: 700; font-size: .95rem; }
+
+  .oferta { background: var(--claro); }
+  .caixa-preco { max-width: 520px; margin: 0 auto; background: #fff; border-radius: 22px; padding: 36px 28px; text-align: center; box-shadow: 0 20px 50px rgba(22,24,29,.12); border: 2px solid var(--escuro); }
+  .caixa-preco ul { text-align: left; list-style: none; padding: 0; margin: 0 0 26px; }
+  .caixa-preco li { padding: 9px 0 9px 32px; position: relative; border-bottom: 1px solid var(--linha); }
+  .caixa-preco li::before { content: '✓'; position: absolute; left: 4px; color: var(--verde); font-weight: 900; }
+  .de { color: var(--cinza); text-decoration: line-through; font-size: 1.05rem; }
+  .por { font-size: 3.2rem; font-weight: 900; line-height: 1; margin: 6px 0 4px; }
+  .por small { font-size: 1.2rem; }
+  .parc { color: var(--cinza); margin-bottom: 24px; }
+  .caixa-preco .btn { width: 100%; }
+  .seguro { font-size: .85rem; color: var(--cinza); margin-top: 14px; }
+
+  .garantia { display: flex; gap: 24px; align-items: center; max-width: 760px; margin: 0 auto; border: 2px dashed var(--verde); border-radius: 18px; padding: 28px; }
+  .garantia .n { flex: none; width: 96px; height: 96px; border-radius: 50%; background: var(--verde); color: #fff; display: grid; place-items: center; text-align: center; font-weight: 900; line-height: 1.05; }
+  .garantia .n b { font-size: 2rem; display: block; }
+  .garantia h3 { margin-bottom: 6px; }
+  .garantia p { margin: 0; color: var(--cinza); }
+
+  .faq { max-width: 760px; margin: 0 auto; }
+  .faq details { border-bottom: 1px solid var(--linha); padding: 18px 4px; }
+  .faq summary { font-weight: 800; cursor: pointer; font-size: 1.05rem; list-style: none; position: relative; padding-right: 30px; }
+  .faq summary::-webkit-details-marker { display: none; }
+  .faq summary::after { content: '+'; position: absolute; right: 4px; top: -2px; font-size: 1.4rem; color: var(--verm); }
+  .faq details[open] summary::after { content: '–'; }
+  .faq p { color: var(--cinza); margin: 10px 0 0; }
+
+  .final { background: var(--escuro); color: #fff; text-align: center; }
+  .final h2 { font-size: clamp(1.6rem, 3.5vw, 2.3rem); margin-bottom: 14px; }
+  .final p { color: #c3c7cf; margin: 0 auto 28px; max-width: 560px; }
+  footer { background: #0e0f12; color: #8b919c; font-size: .8rem; padding: 28px 0; text-align: center; }
+  footer p { margin: 4px 0; }
+
+  .barra { position: fixed; left: 0; right: 0; bottom: 0; background: rgba(22,24,29,.97); padding: 10px 16px; display: none; z-index: 10; }
+  .barra .btn { width: 100%; padding: 14px; font-size: 1rem; }
+
+  @media (max-width: 820px) {
+    section { padding: 48px 0; }
+    .hero .grid, .cards, .galeria, .paginas .grid3 { grid-template-columns: 1fr; }
+    .galeria { grid-template-columns: 1fr 1fr; }
+    .hero { text-align: center; }
+    .chips { justify-content: center; }
+    .hero .btn { width: 100%; }
+    .garantia { flex-direction: column; text-align: center; }
+    .barra { display: block; }
+    body { padding-bottom: 76px; }
+  }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap grid">
+    <div>
+      <span class="selo">GUIA PRÁTICO EM PDF</span>
+      <h1>Treine com a <em>execução certa</em> em 103 exercícios de musculação</h1>
+      <p class="sub">Ilustrações com os músculos destacados, passo a passo, dica técnica e erro comum em cada exercício. E ainda 4 planos de treino prontos para seguir.</p>
+      <a class="btn" href="#oferta" data-checkout>Quero o guia completo<small>Acesso imediato no seu e-mail</small></a>
+      <div class="chips"><span>103 exercícios</span><span>14 grupos musculares</span><span>4 planos de treino</span></div>
+    </div>
+    <div class="img"><img src="img/075.jpg" alt="Ilustração do agachamento livre com barra, com os músculos trabalhados destacados"></div>
+  </div>
+</header>
+
+<section class="dores">
+  <div class="wrap">
+    <div class="titulo"><h2>Você se identifica com isso?</h2></div>
+    <ul>
+      <li>Chega na academia e não sabe direito quais exercícios fazer.</li>
+      <li>Fica em dúvida se está executando o movimento do jeito certo.</li>
+      <li>Treina há meses e não vê resultado, ou sente dor onde não deveria.</li>
+      <li>Vê vídeos soltos na internet, mas nenhum organiza tudo em um só lugar.</li>
+    </ul>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="titulo"><h2>O que você recebe</h2><p>Um guia visual, direto ao ponto, para consultar no celular durante o treino ou imprimir.</p></div>
+    <div class="cards">
+      <div class="card"><div class="ic">103</div><h3>Exercícios ilustrados</h3><p>Posição inicial e final de cada exercício, com os músculos trabalhados destacados em vermelho.</p></div>
+      <div class="card"><div class="ic">1-2-3</div><h3>Execução passo a passo</h3><p>Como fazer cada movimento, mais uma dica técnica e o erro mais comum para você evitar.</p></div>
+      <div class="card"><div class="ic">4</div><h3>Planos de treino prontos</h3><p>Iniciante (full body), intermediário (ABC), avançado (ABCDE) e foco em glúteos e pernas.</p></div>
+    </div>
+  </div>
+</section>
+
+<section style="padding-top:0">
+  <div class="wrap">
+    <div class="titulo"><h2>Veja alguns exercícios</h2></div>
+    <div class="galeria">
+      <figure><img src="img/005.jpg" alt="Supino reto com barra"><figcaption>Supino reto com barra</figcaption></figure>
+      <figure><img src="img/012.jpg" alt="Puxada frontal aberta"><figcaption>Puxada frontal aberta</figcaption></figure>
+      <figure><img src="img/086.jpg" alt="Elevação pélvica (hip thrust)"><figcaption>Elevação pélvica (hip thrust)</figcaption></figure>
+      <figure><img src="img/027.jpg" alt="Elevação lateral com halteres"><figcaption>Elevação lateral com halteres</figcaption></figure>
+      <figure><img src="img/040.jpg" alt="Rosca martelo"><figcaption>Rosca martelo</figcaption></figure>
+      <figure><img src="img/075.jpg" alt="Agachamento livre com barra"><figcaption>Agachamento livre com barra</figcaption></figure>
+    </div>
+  </div>
+</section>
+
+<section class="paginas">
+  <div class="wrap">
+    <div class="titulo"><h2>Por dentro do guia</h2><p>110 páginas organizadas por grupo muscular.</p></div>
+    <div class="grid3">
+      <figure><img src="img/pag-sumario.jpg" alt="Página de sumário do guia"><figcaption>Sumário por grupo muscular</figcaption></figure>
+      <figure><img src="img/pag-exercicio.jpg" alt="Página de exercício do guia"><figcaption>Uma página por exercício</figcaption></figure>
+      <figure><img src="img/pag-plano.jpg" alt="Página de plano de treino do guia"><figcaption>Planos de treino prontos</figcaption></figure>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="titulo"><h2>Todos os grupos musculares</h2></div>
+    <div class="grupos">
+      <span>Peito</span><span>Costas</span><span>Trapézio</span><span>Ombros</span><span>Posterior / Lombar</span><span>Bíceps</span><span>Tríceps</span><span>Antebraço</span><span>Abdômen</span><span>Quadríceps</span><span>Posterior de coxa</span><span>Glúteos</span><span>Adutores</span><span>Panturrilha</span>
+    </div>
+  </div>
+</section>
+
+<section class="oferta" id="oferta">
+  <div class="wrap">
+    <div class="titulo"><h2>Garanta o seu agora</h2><p>Pagamento único. Sem mensalidade.</p></div>
+    <div class="caixa-preco">
+      <ul>
+        <li>103 exercícios ilustrados</li>
+        <li>Execução passo a passo, dica e erro comum</li>
+        <li>4 planos de treino prontos</li>
+        <li>PDF para celular, tablet ou impressão</li>
+        <li>Acesso imediato e vitalício</li>
+      </ul>
+      <div class="de">De R$ 47,00</div>
+      <div class="por"><small>R$</small> 27,90</div>
+      <div class="parc">ou em até 5x no cartão</div>
+      <a class="btn" href="#" data-checkout>Quero meu guia agora</a>
+      <div class="seguro">🔒 Pagamento seguro · Pix, cartão ou boleto</div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="garantia">
+      <div class="n"><span><b>7</b>dias</span></div>
+      <div><h3>Garantia incondicional de 7 dias</h3><p>Se por qualquer motivo você não gostar, é só pedir o reembolso em até 7 dias após a compra e você recebe 100% do valor de volta. Sem perguntas.</p></div>
+    </div>
+  </div>
+</section>
+
+<section style="padding-top:0">
+  <div class="wrap">
+    <div class="titulo"><h2>Perguntas frequentes</h2></div>
+    <div class="faq">
+      <details><summary>Como recebo o guia?</summary><p>Logo após a confirmação do pagamento, você recebe no seu e-mail o link para baixar o PDF. No Pix e no cartão, a liberação é imediata.</p></details>
+      <details><summary>Serve para iniciantes?</summary><p>Sim. Cada exercício tem o passo a passo da execução e há um plano de treino específico para quem está começando.</p></details>
+      <details><summary>Serve para mulheres?</summary><p>Sim. Os exercícios são os mesmos para qualquer pessoa, e há um plano dedicado a glúteos e pernas.</p></details>
+      <details><summary>Preciso de academia?</summary><p>A maioria dos exercícios usa equipamentos de academia, mas vários podem ser feitos em casa com halteres, elástico ou peso do corpo, como flexão, prancha, ponte de glúteo e agachamento búlgaro.</p></details>
+      <details><summary>Posso ler no celular?</summary><p>Sim. O PDF abre em qualquer celular, tablet ou computador, e também pode ser impresso.</p></details>
+      <details><summary>E se eu não gostar?</summary><p>Você tem 7 dias de garantia. Peça o reembolso e devolvemos 100% do valor.</p></details>
+    </div>
+  </div>
+</section>
+
+<section class="final">
+  <div class="wrap">
+    <h2>Pare de treinar no escuro</h2>
+    <p>Tenha os 103 exercícios e os planos de treino na palma da mão, a partir de hoje.</p>
+    <a class="btn" href="#" data-checkout>Quero o guia por R$ 27,90</a>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <p>Guia Ilustrado de Musculação · Todos os direitos reservados.</p>
+    <p>Este material tem caráter educativo e não substitui a orientação de um profissional de educação física ou médico.</p>
+  </div>
+</footer>
+
+<div class="barra"><a class="btn" href="#" data-checkout>Quero o guia por R$ 27,90</a></div>
+
+<script>
+  // Cole aqui o link de checkout da Kiwify (ou Hotmart) do seu produto.
+  const LINK_CHECKOUT = '';
+
+  document.querySelectorAll('[data-checkout]').forEach((a) => {
+    if (LINK_CHECKOUT) a.href = LINK_CHECKOUT;
+    else if (a.getAttribute('href') === '#') a.href = '#oferta';
+  });
+</script>
+</body>
+</html>
