@@ -300,6 +300,15 @@ export const exercicios = [
   [100, 'Elevação de calcanhar com joelhos flexionados', 'Panturrilha', 'Sóleo',
     ['Em pé com joelhos levemente flexionados.', 'Eleve os calcanhares mantendo a flexão dos joelhos.', 'Desça controlando.'],
     'Mantenha o ângulo do joelho constante durante toda a série.', 'Estender os joelhos na subida.'],
+  [101, 'Adução de quadril na polia', 'Adutores', 'Adutores da coxa (longo, curto e magno), grácil',
+    ['Prenda a tornozeleira na polia baixa e fique de lado para ela, com a perna presa mais próxima da máquina.', 'Partindo com a perna afastada, puxe-a em direção e à frente da perna de apoio.', 'Retorne devagar até sentir o alongamento na parte interna da coxa.'],
+    'Segure em um apoio para manter o tronco firme e ereto.', 'Inclinar o tronco ou girar o quadril para ajudar o movimento.'],
+  [102, 'Adução deitado de lado', 'Adutores', 'Adutores da coxa, grácil',
+    ['Deite de lado e apoie o pé da perna de cima no chão, à frente da perna de baixo.', 'Eleve a perna de baixo estendida o mais alto que conseguir.', 'Desça devagar sem encostar totalmente no chão.'],
+    'Ótimo para treinar em casa; use caneleira para progredir.', 'Rolar o quadril para trás e usar o impulso.'],
+  [103, 'Cadeira adutora', 'Adutores', 'Adutores da coxa, grácil, pectíneo',
+    ['Sente com as costas apoiadas e a parte interna dos joelhos contra os apoios.', 'Feche as pernas empurrando os apoios um contra o outro.', 'Abra de forma controlada até sentir o alongamento.'],
+    'Comece com amplitude confortável e aumente aos poucos.', 'Deixar o peso voltar rápido, forçando a virilha.'],
 ];
 
 // Planos de treino prontos (bônus). Cada item: [id do exercício, séries x repetições]
@@ -337,7 +346,7 @@ export const planos = [
     descricao: 'Pode ser combinado com os treinos de membros superiores do plano ABC. Descanso de 60–90s.',
     dias: [
       { nome: 'Dia 1 — Glúteo máximo', itens: [[91, '2 x 20 passos'], [86, '4 x 10'], [76, '3 x 10'], [80, '3 x 10'], [87, '3 x 15'], [89, '3 x 20']] },
-      { nome: 'Dia 2 — Glúteo médio e posterior', itens: [[88, '2 x 12'], [75, '4 x 10'], [81, '3 x 10'], [83, '3 x 12'], [93, '4 x 15'], [90, '3 x 15'], [97, '3 x 15']] },
+      { nome: 'Dia 2 — Glúteo médio e posterior', itens: [[88, '2 x 12'], [75, '4 x 10'], [81, '3 x 10'], [83, '3 x 12'], [93, '4 x 15'], [90, '3 x 15'], [103, '3 x 15'], [97, '3 x 15']] },
     ],
   },
 ];
