@@ -8,3 +8,8 @@ package-lock.json
 server/data.sqlite3
 server/data.sqlite3-shm
 server/data.sqlite3-wal
+
+# Arquivos temporários do gerador do e-book
+produto/build/
+# PDF pago: nunca publicar no repositório (ele é público)
+produto/Guia-Ilustrado-103-Exercicios.pdf
